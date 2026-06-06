@@ -140,7 +140,26 @@ jobs:
           curl -fsS --max-time 10 "https://api.cameronjim.com/validate?token=ci-smoke-test" \
             | jq -e 'has("valid")'
 
-      - name: Frontend root serves the app
+      # Fetch the live page and prove it can actually render — not just that
+      # the HTML shell was served. index.html always contains the #app mount
+      # node, so grepping for it alone can't detect a white-screen. The real
+      # signal is whether the hashed JS/CSS bundles the page references
+      # actually load: the #1 cause of a blank site is index.html deploying
+      # while its assets didn't sync, so the browser 404s the bundle.
+      - name: Frontend serves a working build
         run: |
-          curl -fsS --max-time 10 "https://www.cameronjim.com/" \
-            | grep -q '<div id="app">'
+          set -euo pipefail
+          base="https://www.cameronjim.com"
+          html="$(curl -fsS --max-time 10 "$base/")"
+
+          # 1. the SPA mount node is present
+          echo "$html" | grep -q '<div id="app">'
+
+          # 2. every hashed asset the HTML references must return 200
+          assets="$(echo "$html" | grep -oE '/assets/[^"]+\.(js|css)' | sort -u)"
+          test -n "$assets"   # the build must reference at least one hashed asset
+          for a in $assets; do
+            code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "$base$a")"
+            echo "asset $a -> $code"
+            test "$code" = "200"
+          done
