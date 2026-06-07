@@ -1,4 +1,9 @@
+import { useEffect, useState } from 'react'
 import ThemeToggle from './ThemeToggle'
+import tennis2026 from '../assets/athletics/tennis-2026.jpg'
+import tennis2024 from '../assets/athletics/tennis-2024.jpg'
+import valorant2023 from '../assets/athletics/valorant-2023.jpg'
+import feliks from '../assets/athletics/feliks.jpg'
 
 const NAV_LINKS = [
   { href: '#about', label: 'About' },
@@ -8,6 +13,32 @@ const NAV_LINKS = [
   { href: '#athletics', label: 'Athletics' },
   { href: '#contact', label: 'Contact' },
 ]
+
+const SECTION_IDS = NAV_LINKS.map((link) => link.href.slice(1))
+
+// Track which section is currently in view so the nav can highlight it (scroll-spy).
+function useActiveSection() {
+  const [active, setActive] = useState(SECTION_IDS[0])
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) setActive(entry.target.id)
+        }
+      },
+      // Fire when a section sits roughly in the middle of the viewport.
+      { rootMargin: '-45% 0px -50% 0px', threshold: 0 },
+    )
+    for (const id of SECTION_IDS) {
+      const el = document.getElementById(id)
+      if (el) observer.observe(el)
+    }
+    return () => observer.disconnect()
+  }, [])
+
+  return active
+}
 
 function Portfolio() {
   return (
@@ -27,6 +58,10 @@ function Portfolio() {
 }
 
 function Header() {
+  const active = useActiveSection()
+  const linkClass = (href: string) =>
+    href === `#${active}` ? 'text-primary font-semibold' : ''
+
   return (
     <header className="sticky top-0 z-50 border-b border-base-300 bg-base-100/90 backdrop-blur-sm">
       <div className="navbar mx-auto max-w-3xl px-6">
@@ -39,7 +74,13 @@ function Header() {
           <ul className="menu menu-horizontal hidden gap-1 px-1 text-sm font-medium md:flex">
             {NAV_LINKS.map((link) => (
               <li key={link.href}>
-                <a href={link.href}>{link.label}</a>
+                <a
+                  href={link.href}
+                  className={linkClass(link.href)}
+                  aria-current={link.href === `#${active}` ? 'page' : undefined}
+                >
+                  {link.label}
+                </a>
               </li>
             ))}
           </ul>
@@ -53,7 +94,9 @@ function Header() {
             <ul tabIndex={0} className="menu dropdown-content z-50 mt-3 w-48 gap-1 rounded-box border border-base-300 bg-base-100 p-2 shadow-lg">
               {NAV_LINKS.map((link) => (
                 <li key={link.href}>
-                  <a href={link.href}>{link.label}</a>
+                  <a href={link.href} className={linkClass(link.href)}>
+                    {link.label}
+                  </a>
                 </li>
               ))}
             </ul>
@@ -74,16 +117,24 @@ function Hero() {
   return (
     <section id="about" className="scroll-mt-20 py-16 sm:py-20">
       <p className="mb-3 text-sm font-medium uppercase tracking-widest text-primary">
-        Software Developer
+        Software Engineer
       </p>
       <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
         Cameron Jim
       </h1>
       <p className="mt-4 max-w-2xl text-lg leading-relaxed text-base-content/70">
-        Hi! I'm Cameron, a third-year Computer Engineering student at UBC (expected May 2028, including
-        five co-op work terms) who enjoys problem solving and working through challenges. I recently
-        completed a full co-op term at Sitewise Analytics, where I gained valuable experience building
-        scalable enterprise applications with React and TypeScript.
+        Hi! I'm Cameron, a fourth-year Computer Engineering student at UBC (expected May 2028) and
+        Team Captain of the UBC Men's Varsity Tennis Team. I'm currently on co-op as a QA Software
+        Engineer, where I write Playwright JavaScript for e2e test automation, build API test suites
+        with C# and NUnit, and write SQL queries for data verification, all within an Agile
+        environment. Previously, I completed a co-op at Sitewise Analytics building scalable
+        enterprise application features with React and TypeScript.
+      </p>
+      <p className="mt-4 max-w-2xl text-lg leading-relaxed text-base-content/70">
+        Outside of my co-op work, I've been building hands-on experience in robotics and autonomous
+        systems. I recently developed a self-driving car using both reactive control algorithms and a
+        reinforcement learning agent trained to navigate autonomously. I'm passionate about this space
+        and actively seeking my next co-op in a robotics-focused software engineering role.
       </p>
       <p className="mt-2 text-sm text-base-content/60">
         University of British Columbia &middot; Vancouver, BC
@@ -101,12 +152,15 @@ function Hero() {
           LinkedIn
         </a>
         <a
-          href="https://github.com/sardinebagel"
+          href="https://github.com/cameronjim"
           target="_blank"
           rel="noopener noreferrer"
           className="btn btn-outline"
         >
           GitHub
+        </a>
+        <a href="/resume.pdf" className="btn btn-outline" download>
+          Résumé
         </a>
       </div>
     </section>
@@ -116,9 +170,22 @@ function Hero() {
 function Experience() {
   const experiences = [
     {
+      company: 'British Columbia Maritime Employers Association (BCMEA)',
+      location: 'Vancouver, BC',
+      role: 'QA Software Engineer (Co-op)',
+      period: 'May 2026 – Dec 2026',
+      highlights: [
+        'Developed end-to-end test automation suites in Playwright JavaScript, improving regression coverage across critical B2B workflows',
+        'Built and maintained API test automation using C# and NUnit, validating RESTful endpoints alongside manual Postman testing for exploratory and edge-case scenarios',
+        'Wrote SQL queries against production and test databases to verify data integrity, trace defects, and validate backend logic independently of the UI',
+        'Performed cross-browser and cross-platform validation using BrowserStack, ensuring consistent behavior across devices and environments',
+        'Collaborated with developers in an Agile environment with established code review processes, Git workflows, and sprint ceremonies',
+      ],
+    },
+    {
       company: 'Sitewise Analytics',
       location: 'Vancouver, BC',
-      role: 'Software Developer (Co-op)',
+      role: 'Software Engineer (Co-op)',
       period: 'May 2025 – Sept 2025',
       highlights: [
         'Developed scalable features for an enterprise SaaS application using React, TypeScript, Redux Toolkit (RTK Query), and Vite',
@@ -184,32 +251,71 @@ function Experience() {
   )
 }
 
+type Project = {
+  title: string
+  description: string
+  technologies: string[]
+  repo?: string // GitHub URL — leave '' to hide the button
+  demo?: string // live site or demo video URL (YouTube/Loom is fine) — leave '' to hide
+  image?: string // screenshot/clip in public/, e.g. '/projects/nba.png' — leave '' to hide
+}
+
 function Projects() {
-  const projects = [
-    {
-      title: 'Token-Gated Portfolio',
-      description:
-        'This site — a serverless architecture using AWS Lambda, API Gateway, DynamoDB, and CloudFront to create a private portfolio. Access requires a unique token for privacy-respecting analytics without invasive tracking.',
-      tags: ['AWS Lambda', 'TypeScript', 'React', 'DynamoDB', 'CloudFront'],
-    },
+  // To add a screenshot or clip: drop the file in public/projects/ and set `image`
+  // to its path (e.g. '/projects/nba.png'). Set `repo`/`demo` to show link buttons.
+  const projects: Project[] = [
     {
       title: 'NBA Stats & Fantasy Trade Analyzer',
+      demo: 'https://fantasy-nba.cameronjim.com',
+      repo: '', // TODO: add the GitHub repo URL
+      image: '', // TODO: e.g. '/projects/nba.png'
       description:
-        'In-progress web application that analyzes NBA player statistics, trade values, and waiver-wire pickups for fantasy basketball. Features real-time data visualization and trade recommendations.',
-      tags: ['React', 'TypeScript', 'SQL', 'In Progress'],
+        'A production-deployed full-stack NBA fantasy and analytics platform built end-to-end as a solo developer. Users can track live scores, manage a fantasy roster, receive AI-powered team analysis and trade suggestions via the Anthropic Claude API, and log sports bets with real-time odds. The app runs on a serverless AWS stack with a fully automated two-environment CI/CD pipeline, OIDC-federated deploys, and 200+ automated tests across every layer.',
+      technologies: [
+        'React 18, TypeScript (strict), Vite 6, Tailwind CSS 4, DaisyUI 5, React Router 7, Axios, Google OAuth, lucide-react',
+        'Node.js 22, Express 4, serverless-http, JWT, bcrypt, Helmet, Anthropic Claude SDK, Google Auth Library, AWS SDK v3 (SES)',
+        'PostgreSQL (Neon serverless), hand-written schema with sequential migrations',
+        'Python, Scrapy, nba_api, BeautifulSoup, psycopg2',
+        'AWS Lambda, API Gateway, S3, CloudFront, SES, IAM (OIDC federation), Serverless Framework v3 (CloudFormation)',
+        'GitHub Actions (CI/CD, scheduled cron)',
+        'Vitest, Supertest, React Testing Library, Playwright (Page Object Model)',
+      ],
     },
     {
-      title: 'JavaFX Desktop Application',
+      title: 'F1TENTH Autonomous Driving',
+      repo: 'https://github.com/cameronjim/f1tenth-autonomous-racing',
+      demo: '', // TODO: add a driving demo video URL (YouTube/Loom)
+      image: '', // TODO: e.g. '/projects/f1tenth.png'
       description:
-        'Collaborated in a team of five to build a multi-feature desktop app using JavaFX and SceneBuilder, focusing on intuitive UIs and a robust event-driven architecture.',
-      tags: ['Java', 'JavaFX', 'SceneBuilder', 'Team Project'],
+        'An autonomous driving software stack for the F1TENTH 1/10-scale race car, built in ROS 2 and runnable in both simulation and on the physical car. The project implements and compares two complete driving approaches: classical reactive controllers (wall following, gap following, vision-based lane following) and a learning-based controller trained with behavioural cloning and then fine-tuned with Soft Actor-Critic reinforcement learning. Both share an independent LiDAR-based safety layer for automatic emergency braking, allowing driving policies to be swapped or retrained without compromising collision avoidance.',
+      technologies: [
+        'ROS 2 (ament_python, nodes, topics, parameters, launch files), F1TENTH Gym simulator',
+        'Linux/Ubuntu, Docker, NVIDIA Jetson, SSH',
+        'LiDAR (LaserScan), RGB camera (Image), odometry, Ackermann drive',
+        'PID control, LiDAR gap-following with disparity extension, wall following (two-ray geometry), automatic emergency braking (TTC)',
+        'OpenCV, cv_bridge (grayscale, morphological filtering, thresholding, contour detection)',
+        'PyTorch, behavioural cloning (MLP, MSE loss), Soft Actor-Critic RL (Gaussian policy, twin critics, automatic entropy tuning, replay buffer, Polyak target updates)',
+        'BC-to-SAC warm starting, BC-regularized RL fine-tuning',
+        'NumPy, pandas, ROS bag extraction, time synchronization, data augmentation',
+      ],
+    },
+    {
+      title: 'Token-Gated Portfolio',
+      repo: 'https://github.com/cameronjim/bio-site',
+      description:
+        'This site. A private, serverless portfolio where access is granted through unique, time-limited tokens, enabling privacy-respecting analytics without invasive tracking. It runs on AWS Lambda, API Gateway, DynamoDB, and CloudFront, with React and TypeScript on the front end. Every merge to main deploys automatically through a GitHub Actions CI/CD pipeline that authenticates to AWS with short-lived OIDC-federated credentials, updates the Lambda functions, syncs the front end to S3, and invalidates the CDN cache.',
+      technologies: [
+        'React, TypeScript, Vite, Tailwind CSS, DaisyUI',
+        'AWS Lambda, API Gateway, DynamoDB, CloudFront, S3',
+        'SAM / CloudFormation, GitHub Actions CI/CD, OIDC-federated deploys',
+      ],
     },
   ]
 
   return (
     <section id="projects" className="scroll-mt-20 border-t border-base-300 py-16">
       <SectionHeading>Projects</SectionHeading>
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="flex flex-col gap-5">
         {projects.map((project) => (
           <article
             key={project.title}
@@ -217,14 +323,49 @@ function Projects() {
           >
             <div className="card-body gap-3 p-6">
               <h3 className="card-title text-base">{project.title}</h3>
+              {project.image && (
+                <img
+                  src={project.image}
+                  alt={`${project.title} screenshot`}
+                  loading="lazy"
+                  className="w-full rounded-lg border border-base-300"
+                />
+              )}
               <p className="text-sm leading-relaxed text-base-content/70">{project.description}</p>
-              <div className="mt-1 flex flex-wrap gap-2">
-                {project.tags.map((tag) => (
-                  <span key={tag} className="badge badge-soft badge-sm">
-                    {tag}
-                  </span>
-                ))}
+              <div className="mt-1">
+                <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-base-content/50">
+                  Technologies
+                </h4>
+                <ul className="list-disc space-y-1 pl-5 text-sm leading-relaxed text-base-content/70 marker:text-base-content/30">
+                  {project.technologies.map((tech) => (
+                    <li key={tech}>{tech}</li>
+                  ))}
+                </ul>
               </div>
+              {(project.demo || project.repo) && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {project.demo && (
+                    <a
+                      href={project.demo}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-sm btn-primary"
+                    >
+                      Live demo
+                    </a>
+                  )}
+                  {project.repo && (
+                    <a
+                      href={project.repo}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-sm btn-outline"
+                    >
+                      GitHub
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
           </article>
         ))}
@@ -236,11 +377,13 @@ function Projects() {
 function Skills() {
   const skills: Record<string, string[]> = {
     Languages: ['C++', 'C', 'C#', 'Java', 'Python', 'TypeScript', 'JavaScript', 'SQL', 'ARM Assembly', 'Verilog'],
-    Frontend: ['React', 'Redux Toolkit', 'RTK Query', 'HTML', 'CSS', 'Vite'],
-    'Backend & APIs': ['Node.js', 'Google Maps API', 'Apidog', 'Postman'],
-    'Frameworks & Libraries': ['Scrapy', 'JavaFX', 'SceneBuilder'],
-    'Tools & Platforms': ['Git', 'Linux', 'Ubuntu', 'GDB', 'MCP Servers', 'Playwright', 'Figma', 'ModelSim', 'Quartus', 'LaTeX', 'Arduino'],
-    'Cloud & DevOps': ['AWS Lambda', 'AWS S3', 'AWS CloudFront', 'API Gateway', 'CI/CD', 'SAM CLI'],
+    Frontend: ['React', 'Redux Toolkit', 'Vite', 'HTML', 'CSS'],
+    'Backend & Data': ['Node.js', 'Express', 'REST APIs', 'PostgreSQL', 'DynamoDB'],
+    'Robotics & ML': ['ROS 2', 'PyTorch', 'OpenCV', 'LiDAR'],
+    'Testing & QA': ['Playwright', 'NUnit', 'Vitest', 'BrowserStack', 'Postman', 'Apidog'],
+    'Cloud & DevOps': ['AWS Lambda', 'API Gateway', 'S3', 'CloudFront', 'GitHub Actions', 'CI/CD', 'Docker'],
+    'Embedded & Hardware': ['Arduino', 'ModelSim', 'Quartus', 'GDB', 'Wireshark'],
+    'Tools & Platforms': ['Git', 'Linux', 'NVIDIA Jetson', 'Figma', 'LaTeX'],
   }
 
   return (
@@ -266,45 +409,111 @@ function Skills() {
   )
 }
 
+type Team = {
+  title: string
+  subtitle: string
+  description: string
+  achievements: string[]
+  link?: { href: string; label: string }
+  photos?: { src: string; caption: string }[]
+}
+
 function Athletics() {
-  const teams = [
+  const teams: Team[] = [
     {
       title: 'Tennis',
-      subtitle: "UBC Men's Varsity Tennis Team",
+      subtitle: "Team Captain, UBC Men's Varsity Tennis Team",
+      description:
+        "I've been playing competitive tennis since I was nine years old, training almost every day for close to 12 years now. The sport has shaped how I approach problems: singles taught me to think independently, adapt on the fly, and stay composed under pressure, while doubles and team competition taught me how to communicate, trust my teammates, and put the group's success ahead of my own. I currently compete at the varsity level for UBC in both singles and doubles, and serve as Team Captain of the men's team. I joined the team in my first year of university back in 2023, and it's become like a family to me.",
       achievements: [
-        'Currently competing at the varsity level for UBC in both singles and doubles',
-        'UBC was the Canadian champion in 2024 and runner-up in 2025',
-        'Former top-9 player in Canada',
-        '12 years of competitive experience',
-        'High-school team captain (2021–2023); led the team to two provincial championships',
+        '2026 USPORTS National Champion',
+        '2025 USPORTS National Runner-up',
+        '2024 USPORTS National Champion',
+        'Former top-9 ranked player in Canada',
+        'Current 10 UTR',
+        'High-school team captain (2021–2023), leading the team to two provincial championships',
+      ],
+      photos: [
+        { src: tennis2026, caption: '2026 U SPORTS national champions' },
+        { src: tennis2024, caption: '2024 U SPORTS national champions' },
       ],
     },
     {
-      title: 'Valorant Esports',
-      subtitle: 'High-School Team Captain',
+      title: 'Valorant',
+      subtitle: 'Team Shot-Caller & In-Game Strategist',
+      description:
+        "I've been gaming for about 8 years now, and it's taught me more than most people would expect. Competitive gaming demands fast decision-making under pressure, clear communication with teammates, and the ability to adapt strategies in real time. As a team shot-caller, I learned how to lead through chaos, keep people focused, and make split-second calls that the whole team commits to. Some of my closest friendships came from gaming, and those relationships carried over into real competitive success. I captained my high-school Valorant team for two years, leading the squad to back-to-back provincial championships and earning tournament MVP in both. More recently, I teamed up with some friends to enter a UBC tournament where we took first place, beating the varsity UBC team in the process.",
       achievements: [
-        'High-school team captain (2021–2023)',
-        'Led the team to two provincial championships, earning MVP in both tournaments',
+        'High-school team captain (2021–2023), two provincial championships with tournament MVP in both',
+        '2026 UBC tournament champion',
         'Currently a top-1000 player in North America',
-        'Team shot-caller and strategist',
+        'Team shot-caller and in-game strategist',
+      ],
+      photos: [
+        { src: valorant2023, caption: 'First provincial title with my high-school team, 2023' },
+      ],
+    },
+    {
+      title: 'Speedcubing',
+      subtitle: 'WCA Competitor',
+      description:
+        "I picked up a Rubik's Cube about 9 years ago and pretty quickly fell down the rabbit hole. There's something addictive about chasing a faster solve, and a lot of the skills overlap with what tennis drilled into me: pattern recognition, staying composed when it counts, and putting in the reps until something clicks. Every solve is its own little puzzle where you have to read the state, pick a plan, and commit without second-guessing yourself. I've competed in seven official WCA competitions over the years, and performing under tournament conditions with a judge watching and a timer running is its own kind of pressure that I've come to enjoy.",
+      achievements: [
+        'Consistent sub-10 solver; personal best of approximately 4 seconds',
+        'WCA official personal best: 8.16s single, 10.33s average (3x3)',
+        'WCA 2x2 personal best: 1.93s single, 3.67s average',
+        '7 official WCA competitions, 135 completed solves',
+        'Nationally ranked in Canada across multiple events',
+      ],
+      link: { href: 'https://www.worldcubeassociation.org/persons/2018JIMC01', label: 'WCA profile' },
+      photos: [
+        { src: feliks, caption: 'Meeting Feliks Zemdegs, speedcubing world champion, back in 2018' },
       ],
     },
   ]
 
   return (
     <section id="athletics" className="scroll-mt-20 border-t border-base-300 py-16">
-      <SectionHeading>Athletics &amp; Competitive Gaming</SectionHeading>
-      <div className="grid gap-5 sm:grid-cols-2">
+      <SectionHeading>Athletics &amp; Competition</SectionHeading>
+      <div className="flex flex-col gap-5">
         {teams.map((team) => (
           <article key={team.title} className="card border border-base-300 bg-base-100">
             <div className="card-body gap-3 p-6">
               <h3 className="text-lg font-semibold">{team.title}</h3>
               <p className="text-sm font-medium text-primary">{team.subtitle}</p>
-              <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-base-content/80 marker:text-base-content/30">
+              <p className="text-sm leading-relaxed text-base-content/80">{team.description}</p>
+              {team.photos && (
+                <div className={team.photos.length > 1 ? 'grid items-start gap-4 sm:grid-cols-2' : 'mx-auto sm:max-w-md'}>
+                  {team.photos.map((photo) => (
+                    <div key={photo.src}>
+                      <img
+                        src={photo.src}
+                        alt={photo.caption}
+                        loading="lazy"
+                        className="block h-auto w-full rounded-lg border border-base-300"
+                      />
+                      <p className="mt-1.5 text-center text-xs text-base-content/60">
+                        {photo.caption}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <ul className="mt-1 list-disc space-y-2 pl-5 text-sm leading-relaxed text-base-content/80 marker:text-base-content/30">
                 {team.achievements.map((item) => (
                   <li key={item}>{item}</li>
                 ))}
               </ul>
+              {team.link && (
+                <a
+                  href={team.link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="link link-hover mt-1 w-fit text-sm font-medium text-primary"
+                >
+                  {team.link.label} →
+                </a>
+              )}
             </div>
           </article>
         ))}
@@ -320,15 +529,15 @@ function Contact() {
       <div className="card border border-base-300 bg-base-100">
         <div className="card-body gap-6 p-6 sm:p-8">
           <p className="max-w-2xl leading-relaxed text-base-content/80">
-            I'm actively seeking co-op and internship opportunities for 2026–2027. Feel free to reach
-            out if you'd like to work together.
+            I'm actively seeking co-op and internship opportunities for 2027–2028. I'm always open for
+            a chat!
           </p>
           <dl className="grid gap-4 sm:grid-cols-3">
             <div>
               <dt className="text-xs font-semibold uppercase tracking-wide text-base-content/50">Email</dt>
               <dd className="mt-1">
-                <a href="mailto:cameroncjim@gmail.com" className="link link-hover text-primary">
-                  cameroncjim@gmail.com
+                <a href="mailto:cjim02@student.ubc.ca" className="link link-hover text-primary">
+                  cjim02@student.ubc.ca
                 </a>
               </dd>
             </div>
@@ -342,7 +551,7 @@ function Contact() {
             </div>
           </dl>
           <div className="flex flex-wrap gap-3">
-            <a href="mailto:cameroncjim@gmail.com" className="btn btn-primary">
+            <a href="mailto:cjim02@student.ubc.ca" className="btn btn-primary">
               Email me
             </a>
             <a
@@ -354,12 +563,15 @@ function Contact() {
               LinkedIn
             </a>
             <a
-              href="https://github.com/sardinebagel"
+              href="https://github.com/cameronjim"
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-outline"
             >
               GitHub
+            </a>
+            <a href="/resume.pdf" className="btn btn-outline" download>
+              Résumé
             </a>
           </div>
         </div>

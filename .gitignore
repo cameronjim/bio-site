@@ -35,3 +35,6 @@ npm-debug.log*
 # Temporary files
 *.tmp
 .cache/
+
+# Original full-size source photos (optimized copies live in src/assets/athletics/)
+utils/
