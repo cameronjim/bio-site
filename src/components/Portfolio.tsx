@@ -129,11 +129,13 @@ function Experience() {
       role: 'QA Software Engineer (Co-op)',
       period: 'May 2026 – Dec 2026',
       highlights: [
-        'Write Playwright JavaScript for end-to-end test automation',
-        'Build API test suites with C# and NUnit',
-        'Handle manual testing, SQL-based verification, and cross-platform validation on BrowserStack',
-        'Work within an Agile environment with established code review and Git workflows',
+        'Developed end-to-end test automation suites in Playwright JavaScript, improving regression coverage across critical B2B workflows',
+        'Built and maintained API test automation using C# and NUnit, validating RESTful endpoints alongside manual Postman testing for exploratory and edge-case scenarios',
+        'Wrote SQL queries against production and test databases to verify data integrity, trace defects, and validate backend logic independently of the UI',
+        'Performed cross-browser and cross-platform validation using BrowserStack, ensuring consistent behavior across devices and environments',
+        'Collaborated with developers in an Agile environment with established code review processes, Git workflows, and sprint ceremonies',
       ],
+
     },
     {
       company: 'Sitewise Analytics',
