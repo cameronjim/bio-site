@@ -1,4 +1,9 @@
+import { useEffect, useState } from 'react'
 import ThemeToggle from './ThemeToggle'
+import tennis2026 from '../assets/athletics/tennis-2026.jpg'
+import tennis2024 from '../assets/athletics/tennis-2024.jpg'
+import valorant2023 from '../assets/athletics/valorant-2023.jpg'
+import feliks from '../assets/athletics/feliks.jpg'
 
 const NAV_LINKS = [
   { href: '#about', label: 'About' },
@@ -8,6 +13,32 @@ const NAV_LINKS = [
   { href: '#athletics', label: 'Athletics' },
   { href: '#contact', label: 'Contact' },
 ]
+
+const SECTION_IDS = NAV_LINKS.map((link) => link.href.slice(1))
+
+// Track which section is currently in view so the nav can highlight it (scroll-spy).
+function useActiveSection() {
+  const [active, setActive] = useState(SECTION_IDS[0])
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) setActive(entry.target.id)
+        }
+      },
+      // Fire when a section sits roughly in the middle of the viewport.
+      { rootMargin: '-45% 0px -50% 0px', threshold: 0 },
+    )
+    for (const id of SECTION_IDS) {
+      const el = document.getElementById(id)
+      if (el) observer.observe(el)
+    }
+    return () => observer.disconnect()
+  }, [])
+
+  return active
+}
 
 function Portfolio() {
   return (
@@ -27,6 +58,10 @@ function Portfolio() {
 }
 
 function Header() {
+  const active = useActiveSection()
+  const linkClass = (href: string) =>
+    href === `#${active}` ? 'text-primary font-semibold' : ''
+
   return (
     <header className="sticky top-0 z-50 border-b border-base-300 bg-base-100/90 backdrop-blur-sm">
       <div className="navbar mx-auto max-w-3xl px-6">
@@ -39,7 +74,13 @@ function Header() {
           <ul className="menu menu-horizontal hidden gap-1 px-1 text-sm font-medium md:flex">
             {NAV_LINKS.map((link) => (
               <li key={link.href}>
-                <a href={link.href}>{link.label}</a>
+                <a
+                  href={link.href}
+                  className={linkClass(link.href)}
+                  aria-current={link.href === `#${active}` ? 'page' : undefined}
+                >
+                  {link.label}
+                </a>
               </li>
             ))}
           </ul>
@@ -53,7 +94,9 @@ function Header() {
             <ul tabIndex={0} className="menu dropdown-content z-50 mt-3 w-48 gap-1 rounded-box border border-base-300 bg-base-100 p-2 shadow-lg">
               {NAV_LINKS.map((link) => (
                 <li key={link.href}>
-                  <a href={link.href}>{link.label}</a>
+                  <a href={link.href} className={linkClass(link.href)}>
+                    {link.label}
+                  </a>
                 </li>
               ))}
             </ul>
@@ -116,6 +159,9 @@ function Hero() {
         >
           GitHub
         </a>
+        <a href="/resume.pdf" className="btn btn-outline" download>
+          Résumé
+        </a>
       </div>
     </section>
   )
@@ -135,7 +181,6 @@ function Experience() {
         'Performed cross-browser and cross-platform validation using BrowserStack, ensuring consistent behavior across devices and environments',
         'Collaborated with developers in an Agile environment with established code review processes, Git workflows, and sprint ceremonies',
       ],
-
     },
     {
       company: 'Sitewise Analytics',
@@ -206,10 +251,24 @@ function Experience() {
   )
 }
 
+type Project = {
+  title: string
+  description: string
+  technologies: string[]
+  repo?: string // GitHub URL — leave '' to hide the button
+  demo?: string // live site or demo video URL (YouTube/Loom is fine) — leave '' to hide
+  image?: string // screenshot/clip in public/, e.g. '/projects/nba.png' — leave '' to hide
+}
+
 function Projects() {
-  const projects = [
+  // To add a screenshot or clip: drop the file in public/projects/ and set `image`
+  // to its path (e.g. '/projects/nba.png'). Set `repo`/`demo` to show link buttons.
+  const projects: Project[] = [
     {
       title: 'NBA Stats & Fantasy Trade Analyzer',
+      demo: 'https://fantasy-nba.cameronjim.com',
+      repo: '', // TODO: add the GitHub repo URL
+      image: '', // TODO: e.g. '/projects/nba.png'
       description:
         'A production-deployed full-stack NBA fantasy and analytics platform built end-to-end as a solo developer. Users can track live scores, manage a fantasy roster, receive AI-powered team analysis and trade suggestions via the Anthropic Claude API, and log sports bets with real-time odds. The app runs on a serverless AWS stack with a fully automated two-environment CI/CD pipeline, OIDC-federated deploys, and 200+ automated tests across every layer.',
       technologies: [
@@ -224,6 +283,9 @@ function Projects() {
     },
     {
       title: 'F1TENTH Autonomous Driving',
+      repo: 'https://github.com/cameronjim/f1tenth-autonomous-racing',
+      demo: '', // TODO: add a driving demo video URL (YouTube/Loom)
+      image: '', // TODO: e.g. '/projects/f1tenth.png'
       description:
         'An autonomous driving software stack for the F1TENTH 1/10-scale race car, built in ROS 2 and runnable in both simulation and on the physical car. The project implements and compares two complete driving approaches: classical reactive controllers (wall following, gap following, vision-based lane following) and a learning-based controller trained with behavioural cloning and then fine-tuned with Soft Actor-Critic reinforcement learning. Both share an independent LiDAR-based safety layer for automatic emergency braking, allowing driving policies to be swapped or retrained without compromising collision avoidance.',
       technologies: [
@@ -239,6 +301,7 @@ function Projects() {
     },
     {
       title: 'Token-Gated Portfolio',
+      repo: 'https://github.com/cameronjim/bio-site',
       description:
         'This site. A private, serverless portfolio where access is granted through unique, time-limited tokens, enabling privacy-respecting analytics without invasive tracking. It runs on AWS Lambda, API Gateway, DynamoDB, and CloudFront, with React and TypeScript on the front end. Every merge to main deploys automatically through a GitHub Actions CI/CD pipeline that authenticates to AWS with short-lived OIDC-federated credentials, updates the Lambda functions, syncs the front end to S3, and invalidates the CDN cache.',
       technologies: [
@@ -260,6 +323,14 @@ function Projects() {
           >
             <div className="card-body gap-3 p-6">
               <h3 className="card-title text-base">{project.title}</h3>
+              {project.image && (
+                <img
+                  src={project.image}
+                  alt={`${project.title} screenshot`}
+                  loading="lazy"
+                  className="w-full rounded-lg border border-base-300"
+                />
+              )}
               <p className="text-sm leading-relaxed text-base-content/70">{project.description}</p>
               <div className="mt-1">
                 <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-base-content/50">
@@ -271,6 +342,30 @@ function Projects() {
                   ))}
                 </ul>
               </div>
+              {(project.demo || project.repo) && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {project.demo && (
+                    <a
+                      href={project.demo}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-sm btn-primary"
+                    >
+                      Live demo
+                    </a>
+                  )}
+                  {project.repo && (
+                    <a
+                      href={project.repo}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-sm btn-outline"
+                    >
+                      GitHub
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
           </article>
         ))}
@@ -281,12 +376,13 @@ function Projects() {
 
 function Skills() {
   const skills: Record<string, string[]> = {
-    Languages: ['C++', 'C', 'C#', 'Java', 'Python', 'TypeScript', 'JavaScript', 'SQL'],
-    Frontend: ['React', 'Tailwind CSS', 'DaisyUI', 'Redux Toolkit', 'RTK Query', 'Vite'],
-    'Backend & Data': ['Node.js', 'Express', 'REST APIs', 'Anthropic Claude API', 'PostgreSQL', 'DynamoDB'],
-    'Robotics & ML': ['ROS 2', 'PyTorch', 'Reinforcement Learning', 'OpenCV'],
-    'Testing & QA': ['Playwright', 'NUnit', 'Vitest', 'React Testing Library', 'BrowserStack'],
-    'Cloud & DevOps': ['AWS Lambda', 'API Gateway', 'S3', 'CloudFront', 'Serverless Framework', 'GitHub Actions', 'CI/CD', 'Docker'],
+    Languages: ['C++', 'C', 'C#', 'Java', 'Python', 'TypeScript', 'JavaScript', 'SQL', 'ARM Assembly', 'Verilog'],
+    Frontend: ['React', 'Redux Toolkit', 'Vite', 'HTML', 'CSS'],
+    'Backend & Data': ['Node.js', 'Express', 'REST APIs', 'PostgreSQL', 'DynamoDB'],
+    'Robotics & ML': ['ROS 2', 'PyTorch', 'OpenCV', 'LiDAR'],
+    'Testing & QA': ['Playwright', 'NUnit', 'Vitest', 'BrowserStack', 'Postman', 'Apidog'],
+    'Cloud & DevOps': ['AWS Lambda', 'API Gateway', 'S3', 'CloudFront', 'GitHub Actions', 'CI/CD', 'Docker'],
+    'Embedded & Hardware': ['Arduino', 'ModelSim', 'Quartus', 'GDB', 'Wireshark'],
     'Tools & Platforms': ['Git', 'Linux', 'NVIDIA Jetson', 'Figma', 'LaTeX'],
   }
 
@@ -313,8 +409,17 @@ function Skills() {
   )
 }
 
+type Team = {
+  title: string
+  subtitle: string
+  description: string
+  achievements: string[]
+  link?: { href: string; label: string }
+  photos?: { src: string; caption: string }[]
+}
+
 function Athletics() {
-  const teams = [
+  const teams: Team[] = [
     {
       title: 'Tennis',
       subtitle: "Team Captain, UBC Men's Varsity Tennis Team",
@@ -328,6 +433,10 @@ function Athletics() {
         'Current 10 UTR',
         'High-school team captain (2021–2023), leading the team to two provincial championships',
       ],
+      photos: [
+        { src: tennis2026, caption: '2026 U SPORTS national champions' },
+        { src: tennis2024, caption: '2024 U SPORTS national champions' },
+      ],
     },
     {
       title: 'Valorant',
@@ -339,6 +448,9 @@ function Athletics() {
         '2026 UBC tournament champion',
         'Currently a top-1000 player in North America',
         'Team shot-caller and in-game strategist',
+      ],
+      photos: [
+        { src: valorant2023, caption: 'First provincial title with my high-school team, 2023' },
       ],
     },
     {
@@ -353,6 +465,10 @@ function Athletics() {
         '7 official WCA competitions, 135 completed solves',
         'Nationally ranked in Canada across multiple events',
       ],
+      link: { href: 'https://www.worldcubeassociation.org/persons/2018JIMC01', label: 'WCA profile' },
+      photos: [
+        { src: feliks, caption: 'Meeting Feliks Zemdegs, speedcubing world champion, back in 2018' },
+      ],
     },
   ]
 
@@ -366,11 +482,38 @@ function Athletics() {
               <h3 className="text-lg font-semibold">{team.title}</h3>
               <p className="text-sm font-medium text-primary">{team.subtitle}</p>
               <p className="text-sm leading-relaxed text-base-content/80">{team.description}</p>
+              {team.photos && (
+                <div className={team.photos.length > 1 ? 'grid items-start gap-4 sm:grid-cols-2' : 'mx-auto sm:max-w-md'}>
+                  {team.photos.map((photo) => (
+                    <div key={photo.src}>
+                      <img
+                        src={photo.src}
+                        alt={photo.caption}
+                        loading="lazy"
+                        className="block h-auto w-full rounded-lg border border-base-300"
+                      />
+                      <p className="mt-1.5 text-center text-xs text-base-content/60">
+                        {photo.caption}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
               <ul className="mt-1 list-disc space-y-2 pl-5 text-sm leading-relaxed text-base-content/80 marker:text-base-content/30">
                 {team.achievements.map((item) => (
                   <li key={item}>{item}</li>
                 ))}
               </ul>
+              {team.link && (
+                <a
+                  href={team.link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="link link-hover mt-1 w-fit text-sm font-medium text-primary"
+                >
+                  {team.link.label} →
+                </a>
+              )}
             </div>
           </article>
         ))}
@@ -426,6 +569,9 @@ function Contact() {
               className="btn btn-outline"
             >
               GitHub
+            </a>
+            <a href="/resume.pdf" className="btn btn-outline" download>
+              Résumé
             </a>
           </div>
         </div>
