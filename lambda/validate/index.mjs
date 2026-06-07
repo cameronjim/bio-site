@@ -1,7 +1,7 @@
 /**
  * Validate Lambda
  * Handles: GET https://api.cameronjim.com/validate?token=...
- * 
+ *
  * 1. Validates token exists and is not expired/revoked
  * 2. Logs a 'validate' event to TokenEvents table
  * 3. Returns JSON with token validity and metadata
@@ -28,7 +28,7 @@ const CORS_HEADERS = {
 
 export const handler = async (event) => {
   console.log('Validate Lambda invoked:', JSON.stringify(event));
-  
+
   // Handle CORS preflight
   if (event.requestContext?.http?.method === 'OPTIONS' || event.httpMethod === 'OPTIONS') {
     return {
@@ -37,26 +37,26 @@ export const handler = async (event) => {
       body: '',
     };
   }
-  
+
   // Extract token from query string
   const token = event.queryStringParameters?.token;
-  
+
   if (!token) {
     return response({ valid: false, error: 'No token provided' });
   }
-  
+
   try {
     // Look up token in DynamoDB
     const tokenData = await getToken(token);
-    
+
     if (!tokenData || isTokenInvalid(tokenData)) {
       console.log('Token invalid or not found:', token);
       return response({ valid: false });
     }
-    
+
     // Log the validation event
     await logEvent(token, 'validate', event);
-    
+
     // Return success with token metadata
     return response({
       valid: true,
@@ -64,7 +64,7 @@ export const handler = async (event) => {
       variant: tokenData.variant || 'general',
       destinationPath: tokenData.destinationPath || null,
     });
-    
+
   } catch (error) {
     console.error('Error validating token:', error);
     return response({ valid: false, error: 'Validation failed' });
@@ -76,7 +76,7 @@ async function getToken(token) {
     TableName: TOKENS_TABLE,
     Key: { token },
   });
-  
+
   const response = await docClient.send(command);
   return response.Item;
 }
@@ -86,7 +86,7 @@ function isTokenInvalid(tokenData) {
   if (tokenData.revoked) {
     return true;
   }
-  
+
   // Check if expired (expiresAt is Unix timestamp in seconds)
   if (tokenData.expiresAt) {
     const now = Math.floor(Date.now() / 1000);
@@ -94,20 +94,20 @@ function isTokenInvalid(tokenData) {
       return true;
     }
   }
-  
+
   return false;
 }
 
 async function logEvent(token, eventType, requestEvent) {
   const timestamp = new Date().toISOString();
   const userAgent = requestEvent.headers?.['user-agent'] || requestEvent.headers?.['User-Agent'] || 'unknown';
-  const sourceIp = requestEvent.requestContext?.identity?.sourceIp || 
+  const sourceIp = requestEvent.requestContext?.identity?.sourceIp ||
                    requestEvent.requestContext?.http?.sourceIp ||
                    'unknown';
-  
+
   // Hash the IP with salt for privacy
   const ipHash = hashIp(sourceIp);
-  
+
   const command = new PutCommand({
     TableName: EVENTS_TABLE,
     Item: {
@@ -119,7 +119,7 @@ async function logEvent(token, eventType, requestEvent) {
       referrer: requestEvent.headers?.referer || requestEvent.headers?.Referer || null,
     },
   });
-  
+
   await docClient.send(command);
 }
 

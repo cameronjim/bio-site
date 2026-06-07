@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { validateToken } from '../config/api'
 import Portfolio from '../components/Portfolio'
@@ -9,6 +9,7 @@ function TokenGate() {
   const { token } = useParams<{ token: string }>()
   const navigate = useNavigate()
   const [state, setState] = useState<LoadingState>('loading')
+  const validatedTokenRef = useRef<string | null>(null)
 
   useEffect(() => {
     if (!token) {
@@ -16,9 +17,15 @@ function TokenGate() {
       return
     }
 
+    // Validate each token exactly once. Without this latch, React StrictMode's
+    // double-invoked effect (and any re-render) would fire a second validate
+    // request, logging a duplicate analytics event for a single visit.
+    if (validatedTokenRef.current === token) return
+    validatedTokenRef.current = token
+
     const checkToken = async () => {
       const result = await validateToken(token)
-      
+
       if (result.valid) {
         setState('valid')
       } else {

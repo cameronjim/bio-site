@@ -10,6 +10,10 @@
 
 html {
   scroll-behavior: smooth;
+  /* Reserve the scrollbar gutter so expanding/collapsing content (e.g. the admin
+     analytics rows) never shifts the centered layout sideways when the vertical
+     scrollbar appears or disappears. */
+  scrollbar-gutter: stable;
 }
 
 /* Match the app shell so overscroll / rubber-banding never flashes white */
