@@ -1,5 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, PutCommand, ScanCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, PutCommand, ScanCommand, QueryCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
 import { randomBytes } from 'crypto';
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 
@@ -89,7 +89,12 @@ export async function handler(event: APIGatewayProxyEventV2): Promise<APIGateway
     }
 
     if (path.endsWith('/tokens') && method === 'POST') {
-      const body: CreateTokenRequest = JSON.parse(event.body || '{}');
+      const body = JSON.parse(event.body || '{}');
+      // No DELETE route is wired up in API Gateway, so deletes come through POST
+      // with an explicit action discriminator.
+      if (body.action === 'delete') {
+        return await deleteToken(body.token);
+      }
       return await createToken(body);
     }
 
@@ -142,6 +147,27 @@ async function listTokens(): Promise<APIGatewayProxyResultV2> {
     statusCode: 200,
     headers,
     body: JSON.stringify({ tokens }),
+  };
+}
+
+async function deleteToken(token?: string): Promise<APIGatewayProxyResultV2> {
+  if (!token) {
+    return {
+      statusCode: 400,
+      headers,
+      body: JSON.stringify({ error: 'Token is required' }),
+    };
+  }
+
+  await docClient.send(new DeleteCommand({
+    TableName: TOKENS_TABLE,
+    Key: { token },
+  }));
+
+  return {
+    statusCode: 200,
+    headers,
+    body: JSON.stringify({ deleted: token }),
   };
 }
 

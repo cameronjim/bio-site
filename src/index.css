@@ -1,7 +1,36 @@
 @import "tailwindcss";
 
 @plugin "daisyui" {
-  themes: lofi --default, business --prefersdark;
+  themes: lofi, business --prefersdark;
+}
+
+/* Custom "Pied Piper" theme (Silicon Valley homage) — selectable from the theme
+   toggle. Warm cream base, bold green primary, golden-pipe secondary accent. */
+@plugin "daisyui/theme" {
+  name: "piedpiper";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+  --color-base-100: #f7f3e8;
+  --color-base-200: #ece5d3;
+  --color-base-300: #ddd3ba;
+  --color-base-content: #1a2e22;
+  --color-primary: #0e8a50;
+  --color-primary-content: #ffffff;
+  --color-secondary: #e0a52e;
+  --color-secondary-content: #2a1e00;
+  --color-accent: #14623f;
+  --color-accent-content: #ffffff;
+  --color-neutral: #1a2e22;
+  --color-neutral-content: #f7f3e8;
+  --color-info: #2b8ab0;
+  --color-info-content: #ffffff;
+  --color-success: #15803d;
+  --color-success-content: #ffffff;
+  --color-warning: #d97706;
+  --color-warning-content: #ffffff;
+  --color-error: #b91c1c;
+  --color-error-content: #ffffff;
 }
 
 @theme {
