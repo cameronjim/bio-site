@@ -125,7 +125,7 @@ jobs:
         run: |
           aws cloudfront create-invalidation \
             --distribution-id "E3TXY6MC9HGVY3" \
-            --paths "/index.html" "/"
+            --paths "/*"
 
   smoke-test:
     name: Post-deploy smoke test
