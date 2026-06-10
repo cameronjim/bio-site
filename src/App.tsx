@@ -15,6 +15,10 @@ function App() {
       <Route path="/t/:token" element={<TokenGate />} />
       <Route path="/admin" element={<Admin />} />
       <Route path="/expired" element={<Expired />} />
+      {/* Vanity / root-path tokens, e.g. /mygfsname — validated like /t/:token.
+          Static routes above (admin, expired) rank higher and still win; the admin
+          Lambda's RESERVED_SLUGS list rejects slugs that would collide here. */}
+      <Route path="/:token" element={<TokenGate />} />
       <Route path="*" element={<Expired />} />
     </Routes>
   )
