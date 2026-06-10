@@ -15,9 +15,13 @@ const ADMIN_PASSWORD = requireEnv('ADMIN_PASSWORD');
 // password (one secret to manage). Either way it stays server-side.
 const SESSION_SECRET = process.env.SESSION_SECRET || ADMIN_PASSWORD;
 const SESSION_TTL_SECONDS = 8 * 60 * 60; // browser session lifetime
-const SHORT_LINK_DOMAIN = process.env.SHORT_LINK_DOMAIN || 'go.cameronjim.com';
+const SITE_URL = process.env.SITE_URL || 'https://www.cameronjim.com';
 const MAX_TOKEN_DAYS = 365;
 const MAX_CAMPAIGN_LENGTH = 200;
+// Slugs that collide with client routes (src/App.tsx) or the static-file
+// namespace would be shadowed and never reach the token gate, so reject them at
+// creation. Keep in sync with the routes in App.tsx.
+const RESERVED_SLUGS = new Set(['admin', 'expired', 'preview', 't', 'api', 'assets']);
 
 // CORS: pin to the admin origin. A non-wildcard default keeps a missing env var
 // from ever opening the admin API to every site (never use '*' on an
@@ -35,8 +39,8 @@ interface TokenItem {
   token: string;
   campaign: string;
   createdAt: string;
-  expiresAt: number;
-  expiresAtISO: string;
+  expiresAt?: number; // omitted entirely for indefinite (never-expiring) links
+  expiresAtISO?: string;
 }
 
 interface EventItem {
@@ -51,6 +55,8 @@ interface EventItem {
 interface CreateTokenRequest {
   campaign: string;
   days?: number;
+  customToken?: string; // optional vanity slug, e.g. "dev" -> /dev
+  noExpiry?: boolean; // indefinite link (no expiry, no TTL)
 }
 
 // Read a required env var or throw at module load — a function that never
@@ -201,7 +207,7 @@ async function listTokens(): Promise<APIGatewayProxyResultV2> {
     campaign: item.campaign,
     createdAt: item.createdAt,
     expiresAt: item.expiresAt,
-    shortLink: `https://${SHORT_LINK_DOMAIN}/${item.token}`,
+    shortLink: `${SITE_URL}/${item.token}`,
   }));
 
   // Sort by creation date, newest first
@@ -231,34 +237,64 @@ async function deleteToken(token?: unknown): Promise<APIGatewayProxyResultV2> {
   };
 }
 
-async function createToken({ campaign, days = 30 }: CreateTokenRequest): Promise<APIGatewayProxyResultV2> {
+async function createToken(
+  { campaign, days = 30, customToken, noExpiry }: CreateTokenRequest,
+): Promise<APIGatewayProxyResultV2> {
   if (typeof campaign !== 'string' || !campaign.trim()) {
     return badRequest('Campaign name is required');
   }
   if (campaign.length > MAX_CAMPAIGN_LENGTH) {
     return badRequest(`Campaign name must be ${MAX_CAMPAIGN_LENGTH} characters or fewer`);
   }
-  if (!Number.isInteger(days) || days < 1 || days > MAX_TOKEN_DAYS) {
+  if (!noExpiry && (!Number.isInteger(days) || days < 1 || days > MAX_TOKEN_DAYS)) {
     return badRequest(`Expiry (days) must be a whole number between 1 and ${MAX_TOKEN_DAYS}`);
   }
 
-  const trimmedCampaign = campaign.trim();
-  const token = generateToken();
-  const now = new Date();
-  const expiresAt = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+  // A custom (vanity) slug if provided and valid, otherwise a random token.
+  // Lower-cased so /Dev and /dev can't become two separate links.
+  let token: string;
+  if (typeof customToken === 'string' && customToken.trim() !== '') {
+    token = customToken.trim().toLowerCase();
+    if (!/^[a-z0-9_-]{1,64}$/.test(token)) {
+      return badRequest('Custom link may contain only letters, numbers, hyphens and underscores (1–64 characters)');
+    }
+    if (RESERVED_SLUGS.has(token)) {
+      return badRequest('That link name is reserved. Please choose another.');
+    }
+  } else {
+    token = generateToken();
+  }
 
+  const trimmedCampaign = campaign.trim();
+  const now = new Date();
   const item: TokenItem = {
     token,
     campaign: trimmedCampaign,
     createdAt: now.toISOString(),
-    expiresAt: Math.floor(expiresAt.getTime() / 1000), // TTL expects seconds
-    expiresAtISO: expiresAt.toISOString(),
   };
+  // Indefinite links simply omit expiresAt (no expiry check, no DynamoDB TTL).
+  let expiresAtISO: string | null = null;
+  if (!noExpiry) {
+    const expiresAt = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+    item.expiresAt = Math.floor(expiresAt.getTime() / 1000); // TTL expects seconds
+    item.expiresAtISO = expiresAt.toISOString();
+    expiresAtISO = item.expiresAtISO;
+  }
 
-  await docClient.send(new PutCommand({
-    TableName: TOKENS_TABLE,
-    Item: item,
-  }));
+  try {
+    await docClient.send(new PutCommand({
+      TableName: TOKENS_TABLE,
+      Item: item,
+      // Never clobber an existing token — vanity slugs could collide.
+      ConditionExpression: 'attribute_not_exists(#t)',
+      ExpressionAttributeNames: { '#t': 'token' },
+    }));
+  } catch (err) {
+    if ((err as { name?: string }).name === 'ConditionalCheckFailedException') {
+      return { statusCode: 409, headers, body: JSON.stringify({ error: 'That link name is already taken' }) };
+    }
+    throw err;
+  }
 
   return {
     statusCode: 201,
@@ -266,8 +302,8 @@ async function createToken({ campaign, days = 30 }: CreateTokenRequest): Promise
     body: JSON.stringify({
       token,
       campaign: trimmedCampaign,
-      shortLink: `https://${SHORT_LINK_DOMAIN}/${token}`,
-      expiresAt: expiresAt.toISOString(),
+      shortLink: `${SITE_URL}/${token}`,
+      expiresAt: expiresAtISO,
     }),
   };
 }
