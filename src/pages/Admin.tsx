@@ -98,6 +98,9 @@ function AnalyticsItem({ token, accessCount, lastAccessed, events, formatDate }:
 
 function Admin() {
   const [password, setPassword] = useState('')
+  // The bearer we actually send: a short-lived session token issued by the API,
+  // never the raw password. Kept out of the browser's persisted password store.
+  const [session, setSession] = useState('')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
@@ -111,13 +114,10 @@ function Admin() {
   const [newDays, setNewDays] = useState('30')
   const [toast, setToast] = useState<string | null>(null)
 
-  // Check if already logged in (stored in sessionStorage)
+  // Resume an existing session (the short-lived token, not the password).
   useEffect(() => {
-    const storedPassword = sessionStorage.getItem('adminPassword')
-    if (storedPassword) {
-      setPassword(storedPassword)
-      verifyPassword(storedPassword)
-    }
+    const storedSession = sessionStorage.getItem('adminSession')
+    if (storedSession) authenticate(storedSession, true)
   }, [])
 
   // Auto-dismiss the success toast after a few seconds.
@@ -127,23 +127,31 @@ function Admin() {
     return () => clearTimeout(id)
   }, [toast])
 
-  async function verifyPassword(pwd: string) {
+  // Authenticate with either the password (login) or an existing session token
+  // (resume). On success the API returns a fresh session token, which is the
+  // only credential we persist or send afterwards.
+  async function authenticate(bearer: string, isResume: boolean) {
     setIsLoading(true)
     setError('')
 
     try {
       const response = await fetch(`${API_BASE}/admin/verify`, {
-        headers: { Authorization: `Bearer ${pwd}` },
+        headers: { Authorization: `Bearer ${bearer}` },
       })
 
       if (response.ok) {
+        const data = await response.json().catch(() => ({}))
+        const next = data.session || bearer
+        setSession(next)
+        sessionStorage.setItem('adminSession', next)
         setIsAuthenticated(true)
-        sessionStorage.setItem('adminPassword', pwd)
-        loadTokens(pwd)
-        loadEvents(pwd)
+        setPassword('')
+        loadTokens(next)
+        loadEvents(next)
       } else {
-        setError('Invalid password')
-        sessionStorage.removeItem('adminPassword')
+        // A failed resume just drops you to the login screen, no error noise.
+        setError(isResume ? '' : 'Invalid password')
+        sessionStorage.removeItem('adminSession')
       }
     } catch (err) {
       setError('Connection error')
@@ -152,10 +160,10 @@ function Admin() {
     setIsLoading(false)
   }
 
-  async function loadTokens(pwd: string) {
+  async function loadTokens(auth: string) {
     try {
       const response = await fetch(`${API_BASE}/admin/tokens`, {
-        headers: { Authorization: `Bearer ${pwd}` },
+        headers: { Authorization: `Bearer ${auth}` },
       })
       const data = await response.json()
       setTokens(data.tokens || [])
@@ -164,10 +172,10 @@ function Admin() {
     }
   }
 
-  async function loadEvents(pwd: string) {
+  async function loadEvents(auth: string) {
     try {
       const response = await fetch(`${API_BASE}/admin/events`, {
-        headers: { Authorization: `Bearer ${pwd}` },
+        headers: { Authorization: `Bearer ${auth}` },
       })
       const data = await response.json()
       setEvents(data.events || [])
@@ -187,7 +195,7 @@ function Admin() {
       const response = await fetch(`${API_BASE}/admin/tokens`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${password}`,
+          Authorization: `Bearer ${session}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -199,7 +207,7 @@ function Admin() {
       if (response.ok) {
         setNewCampaign('')
         setToast('Link created')
-        loadTokens(password)
+        loadTokens(session)
       } else {
         setError('Failed to create token')
       }
@@ -223,7 +231,7 @@ function Admin() {
       const response = await fetch(`${API_BASE}/admin/tokens`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${password}`,
+          Authorization: `Bearer ${session}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ action: 'delete', token }),
@@ -231,8 +239,8 @@ function Admin() {
 
       if (response.ok) {
         setToast('Link deleted')
-        loadTokens(password)
-        loadEvents(password)
+        loadTokens(session)
+        loadEvents(session)
       } else {
         setError('Failed to delete link')
       }
@@ -255,8 +263,9 @@ function Admin() {
   }
 
   function logout() {
-    sessionStorage.removeItem('adminPassword')
+    sessionStorage.removeItem('adminSession')
     setIsAuthenticated(false)
+    setSession('')
     setPassword('')
     setTokens([])
     setEvents([])
@@ -280,7 +289,7 @@ function Admin() {
               className="flex flex-col gap-3"
               onSubmit={(e) => {
                 e.preventDefault()
-                verifyPassword(password)
+                authenticate(password, false)
               }}
             >
               <input
@@ -448,7 +457,7 @@ function Admin() {
               <h2 className="text-lg font-semibold">Analytics by Link</h2>
               <button
                 onClick={async () => {
-                  await Promise.all([loadTokens(password), loadEvents(password)])
+                  await Promise.all([loadTokens(session), loadEvents(session)])
                   setToast('Refreshed')
                 }}
                 className="btn btn-sm btn-outline"

@@ -1,6 +1,5 @@
 # Dependencies
 node_modules/
-package-lock.json
 
 # Build outputs
 dist/
@@ -17,7 +16,8 @@ DEPLOY.md
 infrastructure/
 scripts/
 
-# IDE
+# IDE / agent tooling
+.claude/
 .vscode/
 .idea/
 *.swp

@@ -19,16 +19,15 @@ jobs:
     name: Frontend (typecheck + build)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '20'
 
-      # No package-lock.json is committed (it's gitignored), so `npm ci`
-      # can't be used here — `npm install` resolves from package.json.
+      # package-lock.json is committed, so installs are pinned and reproducible.
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       # `npm run build` is `tsc && vite build` — tsc typechecks the app
       # (noEmit) and vite produces dist/. A type error or build failure
@@ -40,9 +39,9 @@ jobs:
     name: Lambdas (typecheck + build)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '20'
 
@@ -50,7 +49,7 @@ jobs:
       - name: Build admin Lambda (TypeScript)
         working-directory: lambda/admin
         run: |
-          npm install
+          npm ci
           npm run build
 
       # validate + redirect are plain ESM — just confirm they parse.
