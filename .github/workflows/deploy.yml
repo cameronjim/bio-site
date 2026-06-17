@@ -1,0 +1,146 @@
+name: Deploy
+
+# Fires on every push to main, AFTER the CI workflow finishes for that
+# commit. The `workflow_run` trigger means: when the workflow named "CI"
+# completes for a commit on main, start this one. If CI failed, the job
+# guards below (conclusion == 'success') skip every job, so a red CI run
+# never deploys.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+# Don't run two deploys for main at once. If two merges land back to back,
+# the second waits — never cancel mid-deploy or a Lambda could be left
+# half-updated.
+concurrency:
+  group: deploy-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy-lambdas:
+    name: Deploy Lambda code
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write   # required to mint the OIDC token AWS trusts
+      contents: read
+    steps:
+      # Check out the exact commit CI tested — not whatever is newest on
+      # main right now.
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # admin is TypeScript → compile to dist/index.js (CommonJS).
+      - name: Build admin Lambda
+        working-directory: lambda/admin
+        run: |
+          npm install
+          npm run build
+
+      # Zip each function flat (-j) so the handler resolves at the archive
+      # root (handler is "index.handler" for all three). validate/redirect
+      # ship their source .mjs as-is; the AWS SDK v3 is provided by the
+      # nodejs20.x runtime (same as the admin function already relies on),
+      # so no node_modules need to be bundled.
+      - name: Package Lambdas
+        run: |
+          mkdir -p build
+          zip -j build/validate.zip lambda/validate/index.mjs
+          zip -j build/redirect.zip lambda/redirect/index.mjs
+          zip -j build/admin.zip    lambda/admin/dist/index.js
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: us-east-1
+
+      # update-function-code only swaps the code of the existing function —
+      # it never touches env vars, IAM, API Gateway, DynamoDB or domains.
+      # --publish snapshots a numbered version each deploy so you can roll
+      # back from the Lambda console.
+      - name: Update function code
+        run: |
+          aws lambda update-function-code --function-name bio-site-validate \
+            --zip-file fileb://build/validate.zip --publish
+          aws lambda update-function-code --function-name bio-site-redirect \
+            --zip-file fileb://build/redirect.zip --publish
+          aws lambda update-function-code --function-name bio-site-admin \
+            --zip-file fileb://build/admin.zip --publish
+
+  deploy-frontend:
+    name: Deploy frontend to S3 + CloudFront
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      # The site has no build-time env vars (API URLs are hardcoded in
+      # src/config/api.ts), so a plain build is all that's needed.
+      - name: Build for production
+        run: npm run build
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: us-east-1
+
+      # vite emits content-hashed files under dist/assets/ — safe to cache
+      # forever. Everything else (index.html, favicon, robots.txt) must be
+      # no-cache so users pick up the new bundle immediately after deploy.
+      - name: Upload hashed assets (immutable, long cache)
+        run: |
+          aws s3 sync dist/assets/ "s3://cameronjim.com-site/assets/" \
+            --cache-control "public, max-age=31536000, immutable" \
+            --delete
+
+      - name: Upload root files (no cache)
+        run: |
+          aws s3 sync dist/ "s3://cameronjim.com-site/" \
+            --cache-control "public, max-age=0, must-revalidate" \
+            --exclude "assets/*" \
+            --delete
+
+      - name: Invalidate CloudFront
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "E3TXY6MC9HGVY3" \
+            --paths "/index.html" "/"
+
+  smoke-test:
+    name: Post-deploy smoke test
+    needs: [deploy-lambdas, deploy-frontend]
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      # A bogus token returns {"valid":false} with HTTP 200 — proving the
+      # API Gateway route and validate Lambda are alive.
+      - name: Validate API responds
+        run: |
+          curl -fsS --max-time 10 "https://api.cameronjim.com/validate?token=ci-smoke-test" \
+            | jq -e 'has("valid")'
+
+      - name: Frontend root serves the app
+        run: |
+          curl -fsS --max-time 10 "https://www.cameronjim.com/" \
+            | grep -q '<div id="app">'
