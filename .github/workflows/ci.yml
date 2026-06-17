@@ -1,0 +1,60 @@
+name: CI
+
+# Runs on every push to main and every PR targeting main.
+# This is the gate: deploy.yml only fires after this workflow goes green
+# on a commit that landed on main (see .github/workflows/deploy.yml).
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# A newer push to the same branch cancels an in-flight CI run for it.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend:
+    name: Frontend (typecheck + build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # No package-lock.json is committed (it's gitignored), so `npm ci`
+      # can't be used here — `npm install` resolves from package.json.
+      - name: Install dependencies
+        run: npm install
+
+      # `npm run build` is `tsc && vite build` — tsc typechecks the app
+      # (noEmit) and vite produces dist/. A type error or build failure
+      # fails the job and blocks deploy.
+      - name: Typecheck + build
+        run: npm run build
+
+  lambdas:
+    name: Lambdas (typecheck + build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # admin is TypeScript and must compile to JS before it can ship.
+      - name: Build admin Lambda (TypeScript)
+        working-directory: lambda/admin
+        run: |
+          npm install
+          npm run build
+
+      # validate + redirect are plain ESM — just confirm they parse.
+      - name: Syntax-check validate + redirect Lambdas
+        run: |
+          node --check lambda/validate/index.mjs
+          node --check lambda/redirect/index.mjs
