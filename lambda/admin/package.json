@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Admin API for token management and analytics",
   "main": "index.ts",
+  "scripts": {
+    "build": "tsc"
+  },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.0.0",
     "@aws-sdk/lib-dynamodb": "^3.0.0"
