@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import ThemeToggle from '../components/ThemeToggle'
 
-const API_BASE = 'https://api.cameronjim.com'
+// In dev, route admin API calls through Vite's proxy (see vite.config.ts) to
+// avoid the production API's CORS restriction; in production hit it directly.
+const API_BASE = import.meta.env.DEV ? '/api' : 'https://api.cameronjim.com'
 
 interface Token {
   token: string
@@ -26,6 +28,12 @@ interface AnalyticsItemProps {
   lastAccessed: string | null
   events: Event[]
   formatDate: (dateStr: string | number) => string
+}
+
+// Human-readable labels for the raw event types stored in DynamoDB.
+const EVENT_LABELS: Record<string, string> = {
+  validate: 'Page view',
+  open_go: 'Link opened',
 }
 
 function AnalyticsItem({ token, accessCount, lastAccessed, events, formatDate }: AnalyticsItemProps) {
@@ -74,7 +82,7 @@ function AnalyticsItem({ token, accessCount, lastAccessed, events, formatDate }:
                     <div className="h-2 w-2 rounded-full bg-primary" />
                   </div>
                   <div className="timeline-end mb-3 flex flex-col">
-                    <span className="text-sm font-medium">{event.type}</span>
+                    <span className="text-sm font-medium">{EVENT_LABELS[event.type] || event.type}</span>
                     <span className="text-xs text-base-content/50">{formatDate(event.timestamp)}</span>
                   </div>
                   {index < events.length - 1 && <hr />}
@@ -100,8 +108,8 @@ function Admin() {
 
   // New token form
   const [newCampaign, setNewCampaign] = useState('')
-  const [newDays, setNewDays] = useState(30)
-  const [createdToken, setCreatedToken] = useState<Token | null>(null)
+  const [newDays, setNewDays] = useState('30')
+  const [toast, setToast] = useState<string | null>(null)
 
   // Check if already logged in (stored in sessionStorage)
   useEffect(() => {
@@ -111,6 +119,13 @@ function Admin() {
       verifyPassword(storedPassword)
     }
   }, [])
+
+  // Auto-dismiss the success toast after a few seconds.
+  useEffect(() => {
+    if (!toast) return
+    const id = setTimeout(() => setToast(null), 3000)
+    return () => clearTimeout(id)
+  }, [toast])
 
   async function verifyPassword(pwd: string) {
     setIsLoading(true)
@@ -163,10 +178,10 @@ function Admin() {
 
   async function createToken(e: React.FormEvent) {
     e.preventDefault()
-    if (!newCampaign.trim()) return
+    const days = parseInt(newDays, 10)
+    if (!newCampaign.trim() || !Number.isInteger(days) || days < 1) return
 
     setIsLoading(true)
-    setCreatedToken(null)
 
     try {
       const response = await fetch(`${API_BASE}/admin/tokens`, {
@@ -177,14 +192,13 @@ function Admin() {
         },
         body: JSON.stringify({
           campaign: newCampaign.trim(),
-          days: newDays,
+          days,
         }),
       })
 
       if (response.ok) {
-        const data = await response.json()
-        setCreatedToken(data)
         setNewCampaign('')
+        setToast('Link created')
         loadTokens(password)
       } else {
         setError('Failed to create token')
@@ -198,6 +212,7 @@ function Admin() {
 
   function copyToClipboard(text: string) {
     navigator.clipboard.writeText(text)
+    setToast('Link copied')
   }
 
   function formatDate(dateStr: string | number) {
@@ -218,6 +233,9 @@ function Admin() {
     setTokens([])
     setEvents([])
   }
+
+  // The days field is free-text so it can be cleared; valid = a positive integer.
+  const daysValid = newDays !== '' && Number.isInteger(parseInt(newDays, 10)) && parseInt(newDays, 10) >= 1
 
   // Login screen
   if (!isAuthenticated) {
@@ -325,19 +343,21 @@ function Admin() {
                       <div>
                         <label className="mb-1 block text-sm font-medium">Expires in (days)</label>
                         <input
-                          type="number"
+                          type="text"
+                          inputMode="numeric"
                           className="input w-full"
                           value={newDays}
-                          onChange={(e) => setNewDays(parseInt(e.target.value) || 30)}
-                          min={1}
-                          max={365}
+                          onChange={(e) =>
+                            setNewDays(e.target.value.replace(/\D/g, '').replace(/^0+(?=\d)/, ''))
+                          }
+                          placeholder="30"
                         />
                       </div>
                     </div>
                     <button
                       type="submit"
                       className="btn btn-primary sm:self-end"
-                      disabled={isLoading || !newCampaign.trim()}
+                      disabled={isLoading || !newCampaign.trim() || !daysValid}
                     >
                       {isLoading ? (
                         <>
@@ -349,25 +369,6 @@ function Admin() {
                       )}
                     </button>
                   </form>
-
-                  {createdToken && (
-                    <div className="alert alert-success alert-soft flex-col items-start gap-3">
-                      <h3 className="font-semibold">Link created</h3>
-                      <div className="flex w-full gap-2">
-                        <input type="text" className="input input-sm w-full font-mono" value={createdToken.shortLink} readOnly />
-                        <button
-                          type="button"
-                          className="btn btn-sm"
-                          onClick={() => copyToClipboard(createdToken.shortLink)}
-                        >
-                          Copy
-                        </button>
-                      </div>
-                      <p className="text-xs text-base-content/70">
-                        Campaign: {createdToken.campaign} &middot; Expires: {formatDate(createdToken.expiresAt)}
-                      </p>
-                    </div>
-                  )}
                 </div>
               </div>
             </section>
@@ -384,9 +385,11 @@ function Admin() {
                       key={token.token}
                       className="flex flex-wrap items-center justify-between gap-4 rounded-box border border-base-300 bg-base-100 p-4"
                     >
-                      <div className="flex flex-col">
+                      <div className="flex min-w-0 flex-col">
                         <span className="font-semibold">{token.campaign}</span>
-                        <span className="font-mono text-xs text-base-content/50">{token.token}</span>
+                        <span className="select-all break-all font-mono text-xs text-base-content/60">
+                          {token.shortLink}
+                        </span>
                       </div>
                       <div className="flex flex-col text-xs text-base-content/60">
                         <span>Created: {formatDate(token.createdAt)}</span>
@@ -408,9 +411,9 @@ function Admin() {
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-semibold">Analytics by Link</h2>
               <button
-                onClick={() => {
-                  loadTokens(password)
-                  loadEvents(password)
+                onClick={async () => {
+                  await Promise.all([loadTokens(password), loadEvents(password)])
+                  setToast('Refreshed')
                 }}
                 className="btn btn-sm btn-outline"
               >
@@ -424,8 +427,12 @@ function Admin() {
               <div className="flex flex-col gap-3">
                 {tokens.map((token) => {
                   const tokenEvents = events.filter((e) => e.token === token.token)
-                  const lastAccessed = tokenEvents.length > 0 ? tokenEvents[0].timestamp : null
-                  const accessCount = tokenEvents.length
+                  // A "view" = the portfolio actually loaded (a validate event). The
+                  // short-link redirect logs a separate open_go event for the same
+                  // visit, so counting every event type would double-count one visit.
+                  const views = tokenEvents.filter((e) => e.type === 'validate')
+                  const lastAccessed = views.length > 0 ? views[0].timestamp : null
+                  const accessCount = views.length
 
                   return (
                     <AnalyticsItem
@@ -443,11 +450,18 @@ function Admin() {
           </section>
         )}
 
-        {error && (
+        {(toast || error) && (
           <div className="toast toast-end">
-            <div className="alert alert-error">
-              <span>{error}</span>
-            </div>
+            {toast && (
+              <div className="alert alert-success">
+                <span>{toast}</span>
+              </div>
+            )}
+            {error && (
+              <div className="alert alert-error">
+                <span>{error}</span>
+              </div>
+            )}
           </div>
         )}
       </main>
