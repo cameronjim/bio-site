@@ -30,7 +30,7 @@ interface TokenItem {
 interface EventItem {
   token: string;
   ts: string;
-  type: string;
+  eventType: string;
   campaign?: string;
   ipHash?: string;
   userAgent?: string;
@@ -45,11 +45,11 @@ interface CreateTokenRequest {
 function checkAuth(event: APIGatewayProxyEventV2): boolean {
   const authHeader = event.headers?.authorization || event.headers?.Authorization;
   if (!authHeader) return false;
-  
+
   // Expect: "Bearer <password>"
   const parts = authHeader.split(' ');
   if (parts.length !== 2 || parts[0] !== 'Bearer') return false;
-  
+
   return parts[1] === ADMIN_PASSWORD;
 }
 
@@ -67,12 +67,12 @@ function generateToken(length = 8): string {
 export async function handler(event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> {
   const method = event.requestContext?.http?.method;
   const path = event.rawPath || '';
-  
+
   // Handle CORS preflight
   if (method === 'OPTIONS') {
     return { statusCode: 200, headers, body: '' };
   }
-  
+
   // Check authentication for all routes except OPTIONS
   if (!checkAuth(event)) {
     return {
@@ -81,23 +81,23 @@ export async function handler(event: APIGatewayProxyEventV2): Promise<APIGateway
       body: JSON.stringify({ error: 'Unauthorized' }),
     };
   }
-  
+
   try {
     // Route handling
     if (path.endsWith('/tokens') && method === 'GET') {
       return await listTokens();
     }
-    
+
     if (path.endsWith('/tokens') && method === 'POST') {
       const body: CreateTokenRequest = JSON.parse(event.body || '{}');
       return await createToken(body);
     }
-    
+
     if (path.endsWith('/events') && method === 'GET') {
       const tokenId = event.queryStringParameters?.token;
       return await getEvents(tokenId);
     }
-    
+
     if (path.endsWith('/verify') && method === 'GET') {
       // Just verify the password is correct
       return {
@@ -106,7 +106,7 @@ export async function handler(event: APIGatewayProxyEventV2): Promise<APIGateway
         body: JSON.stringify({ valid: true }),
       };
     }
-    
+
     return {
       statusCode: 404,
       headers,
@@ -126,7 +126,7 @@ async function listTokens(): Promise<APIGatewayProxyResultV2> {
   const result = await docClient.send(new ScanCommand({
     TableName: TOKENS_TABLE,
   }));
-  
+
   const tokens = (result.Items as TokenItem[] || []).map(item => ({
     token: item.token,
     campaign: item.campaign,
@@ -134,10 +134,10 @@ async function listTokens(): Promise<APIGatewayProxyResultV2> {
     expiresAt: item.expiresAt,
     shortLink: `https://${SHORT_LINK_DOMAIN}/${item.token}`,
   }));
-  
+
   // Sort by creation date, newest first
   tokens.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  
+
   return {
     statusCode: 200,
     headers,
@@ -153,11 +153,11 @@ async function createToken({ campaign, days = 30 }: CreateTokenRequest): Promise
       body: JSON.stringify({ error: 'Campaign name is required' }),
     };
   }
-  
+
   const token = generateToken(8);
   const now = new Date();
   const expiresAt = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
-  
+
   const item: TokenItem = {
     token,
     campaign,
@@ -165,12 +165,12 @@ async function createToken({ campaign, days = 30 }: CreateTokenRequest): Promise
     expiresAt: Math.floor(expiresAt.getTime() / 1000), // TTL expects seconds
     expiresAtISO: expiresAt.toISOString(),
   };
-  
+
   await docClient.send(new PutCommand({
     TableName: TOKENS_TABLE,
     Item: item,
   }));
-  
+
   return {
     statusCode: 201,
     headers,
@@ -185,7 +185,7 @@ async function createToken({ campaign, days = 30 }: CreateTokenRequest): Promise
 
 async function getEvents(tokenId?: string): Promise<APIGatewayProxyResultV2> {
   let result;
-  
+
   if (tokenId) {
     // Get events for specific token
     result = await docClient.send(new QueryCommand({
@@ -203,19 +203,19 @@ async function getEvents(tokenId?: string): Promise<APIGatewayProxyResultV2> {
       Limit: 100,
     }));
   }
-  
+
   const events = (result.Items as EventItem[] || []).map(item => ({
     token: item.token,
     timestamp: item.ts,
-    type: item.type,
+    type: item.eventType,
     campaign: item.campaign,
     ipHash: item.ipHash,
     userAgent: item.userAgent,
   }));
-  
+
   // Sort by timestamp, newest first
   events.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  
+
   return {
     statusCode: 200,
     headers,
