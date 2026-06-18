@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import '../styles/admin.css'
+import ThemeToggle from '../components/ThemeToggle'
 
 const API_BASE = 'https://api.cameronjim.com'
 
@@ -29,58 +29,63 @@ interface AnalyticsItemProps {
 }
 
 function AnalyticsItem({ token, accessCount, lastAccessed, events, formatDate }: AnalyticsItemProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  
+  const [isExpanded, setIsExpanded] = useState(false)
+
   return (
-    <div className="analytics-item">
-      <div 
-        className="analytics-item-header" 
+    <div
+      className={
+        'collapse collapse-arrow rounded-box border border-base-300 bg-base-100 ' +
+        (isExpanded ? 'collapse-open' : 'collapse-close')
+      }
+    >
+      <div
+        className="collapse-title flex cursor-pointer flex-wrap items-center justify-between gap-3 pr-12"
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <div className="analytics-item-info">
-          <strong>{token.campaign}</strong>
-          <span className="token-code">{token.token}</span>
+        <div className="flex flex-col">
+          <span className="font-semibold">{token.campaign}</span>
+          <span className="font-mono text-xs text-base-content/50">{token.token}</span>
         </div>
-        <div className="analytics-item-stats">
-          <span className="access-count">
+        <div className="flex items-center gap-3 text-sm">
+          <span className="badge badge-soft">
             {accessCount} {accessCount === 1 ? 'view' : 'views'}
           </span>
-          {lastAccessed && (
-            <span className="last-accessed">
-              Last: {formatDate(lastAccessed)}
-            </span>
-          )}
-          {!lastAccessed && (
-            <span className="no-views">No views yet</span>
-          )}
-        </div>
-        <button className="expand-btn">
-          {isExpanded ? '−' : '+'}
-        </button>
-      </div>
-      
-      {isExpanded && (
-        <div className="analytics-item-details">
-          {events.length === 0 ? (
-            <p className="no-events">No activity recorded for this link yet.</p>
+          {lastAccessed ? (
+            <span className="text-base-content/60">Last: {formatDate(lastAccessed)}</span>
           ) : (
-            <div className="event-timeline">
-              <h4>Access History ({events.length})</h4>
-              {events.map((event, index) => (
-                <div key={index} className="timeline-event">
-                  <div className="timeline-dot"></div>
-                  <div className="timeline-content">
-                    <span className="timeline-type">{event.type}</span>
-                    <span className="timeline-time">{formatDate(event.timestamp)}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <span className="text-base-content/40">No views yet</span>
           )}
         </div>
-      )}
+      </div>
+
+      <div className="collapse-content">
+        {events.length === 0 ? (
+          <p className="text-sm text-base-content/50">No activity recorded for this link yet.</p>
+        ) : (
+          <div>
+            <h4 className="mb-3 text-sm font-semibold text-base-content/70">
+              Access history ({events.length})
+            </h4>
+            <ul className="timeline timeline-vertical timeline-compact">
+              {events.map((event, index) => (
+                <li key={index}>
+                  {index > 0 && <hr />}
+                  <div className="timeline-middle">
+                    <div className="h-2 w-2 rounded-full bg-primary" />
+                  </div>
+                  <div className="timeline-end mb-3 flex flex-col">
+                    <span className="text-sm font-medium">{event.type}</span>
+                    <span className="text-xs text-base-content/50">{formatDate(event.timestamp)}</span>
+                  </div>
+                  {index < events.length - 1 && <hr />}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
-  );
+  )
 }
 
 function Admin() {
@@ -88,11 +93,11 @@ function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
-  
+
   const [tokens, setTokens] = useState<Token[]>([])
   const [events, setEvents] = useState<Event[]>([])
   const [activeTab, setActiveTab] = useState<'tokens' | 'events'>('tokens')
-  
+
   // New token form
   const [newCampaign, setNewCampaign] = useState('')
   const [newDays, setNewDays] = useState(30)
@@ -110,12 +115,12 @@ function Admin() {
   async function verifyPassword(pwd: string) {
     setIsLoading(true)
     setError('')
-    
+
     try {
       const response = await fetch(`${API_BASE}/admin/verify`, {
-        headers: { 'Authorization': `Bearer ${pwd}` }
+        headers: { Authorization: `Bearer ${pwd}` },
       })
-      
+
       if (response.ok) {
         setIsAuthenticated(true)
         sessionStorage.setItem('adminPassword', pwd)
@@ -128,14 +133,14 @@ function Admin() {
     } catch (err) {
       setError('Connection error')
     }
-    
+
     setIsLoading(false)
   }
 
   async function loadTokens(pwd: string) {
     try {
       const response = await fetch(`${API_BASE}/admin/tokens`, {
-        headers: { 'Authorization': `Bearer ${pwd}` }
+        headers: { Authorization: `Bearer ${pwd}` },
       })
       const data = await response.json()
       setTokens(data.tokens || [])
@@ -147,7 +152,7 @@ function Admin() {
   async function loadEvents(pwd: string) {
     try {
       const response = await fetch(`${API_BASE}/admin/events`, {
-        headers: { 'Authorization': `Bearer ${pwd}` }
+        headers: { Authorization: `Bearer ${pwd}` },
       })
       const data = await response.json()
       setEvents(data.events || [])
@@ -159,23 +164,23 @@ function Admin() {
   async function createToken(e: React.FormEvent) {
     e.preventDefault()
     if (!newCampaign.trim()) return
-    
+
     setIsLoading(true)
     setCreatedToken(null)
-    
+
     try {
       const response = await fetch(`${API_BASE}/admin/tokens`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${password}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${password}`,
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           campaign: newCampaign.trim(),
-          days: newDays
-        })
+          days: newDays,
+        }),
       })
-      
+
       if (response.ok) {
         const data = await response.json()
         setCreatedToken(data)
@@ -187,7 +192,7 @@ function Admin() {
     } catch (err) {
       setError('Connection error')
     }
-    
+
     setIsLoading(false)
   }
 
@@ -196,15 +201,13 @@ function Admin() {
   }
 
   function formatDate(dateStr: string | number) {
-    const date = typeof dateStr === 'number' 
-      ? new Date(dateStr * 1000) 
-      : new Date(dateStr)
+    const date = typeof dateStr === 'number' ? new Date(dateStr * 1000) : new Date(dateStr)
     return date.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     })
   }
 
@@ -219,25 +222,47 @@ function Admin() {
   // Login screen
   if (!isAuthenticated) {
     return (
-      <div className="admin-login">
-        <div className="login-card">
-          <h1>Admin Dashboard</h1>
-          <p>Enter your admin password to continue</p>
-          
-          <form onSubmit={(e) => { e.preventDefault(); verifyPassword(password); }}>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-              autoFocus
-            />
-            <button type="submit" disabled={isLoading || !password}>
-              {isLoading ? 'Verifying...' : 'Login'}
-            </button>
-          </form>
-          
-          {error && <p className="error">{error}</p>}
+      <div className="flex min-h-screen items-center justify-center bg-base-200 px-4">
+        <div className="card w-full max-w-sm border border-base-300 bg-base-100 shadow-sm">
+          <div className="card-body gap-4 p-8">
+            <div className="text-center">
+              <h1 className="text-xl font-semibold">Admin Dashboard</h1>
+              <p className="mt-1 text-sm text-base-content/60">Enter your password to continue</p>
+            </div>
+
+            <form
+              className="flex flex-col gap-3"
+              onSubmit={(e) => {
+                e.preventDefault()
+                verifyPassword(password)
+              }}
+            >
+              <input
+                type="password"
+                className="input w-full"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
+                autoFocus
+              />
+              <button type="submit" className="btn btn-primary" disabled={isLoading || !password}>
+                {isLoading ? (
+                  <>
+                    <span className="loading loading-spinner loading-sm" />
+                    Verifying…
+                  </>
+                ) : (
+                  'Login'
+                )}
+              </button>
+            </form>
+
+            {error && (
+              <div className="alert alert-error alert-soft py-2 text-sm">
+                <span>{error}</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     )
@@ -245,129 +270,163 @@ function Admin() {
 
   // Dashboard
   return (
-    <div className="admin-dashboard">
-      <header className="admin-header">
-        <h1>Dashboard</h1>
-        <button onClick={logout} className="logout-btn">Logout</button>
+    <div className="min-h-screen bg-base-200 text-base-content">
+      <header className="sticky top-0 z-50 border-b border-base-300 bg-base-100/90 backdrop-blur-sm">
+        <div className="navbar mx-auto max-w-4xl px-6">
+          <div className="navbar-start">
+            <h1 className="text-lg font-semibold tracking-tight">Dashboard</h1>
+          </div>
+          <div className="navbar-end gap-1">
+            <ThemeToggle />
+            <button onClick={logout} className="btn btn-ghost btn-sm">
+              Logout
+            </button>
+          </div>
+        </div>
       </header>
-      
-      <nav className="admin-tabs">
-        <button 
-          className={activeTab === 'tokens' ? 'active' : ''} 
-          onClick={() => setActiveTab('tokens')}
-        >
-          Create Links
-        </button>
-        <button 
-          className={activeTab === 'events' ? 'active' : ''} 
-          onClick={() => setActiveTab('events')}
-        >
-          Analytics
-        </button>
-      </nav>
-      
-      <main className="admin-content">
+
+      <main className="mx-auto max-w-4xl px-6 py-8">
+        <div role="tablist" className="tabs tabs-box mb-8 w-fit">
+          <button
+            role="tab"
+            className={'tab' + (activeTab === 'tokens' ? ' tab-active' : '')}
+            onClick={() => setActiveTab('tokens')}
+          >
+            Create Links
+          </button>
+          <button
+            role="tab"
+            className={'tab' + (activeTab === 'events' ? ' tab-active' : '')}
+            onClick={() => setActiveTab('events')}
+          >
+            Analytics
+          </button>
+        </div>
+
         {activeTab === 'tokens' && (
-          <div className="tokens-panel">
+          <div className="flex flex-col gap-8">
             {/* Create new token form */}
-            <section className="create-token-section">
-              <h2>Create New Link</h2>
-              <form onSubmit={createToken} className="create-form">
-                <div className="form-group">
-                  <label>Campaign Name</label>
-                  <input
-                    type="text"
-                    value={newCampaign}
-                    onChange={(e) => setNewCampaign(e.target.value)}
-                    placeholder="e.g., Google SWE Intern 2026"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Expires in (days)</label>
-                  <input
-                    type="number"
-                    value={newDays}
-                    onChange={(e) => setNewDays(parseInt(e.target.value) || 30)}
-                    min={1}
-                    max={365}
-                  />
-                </div>
-                <button type="submit" disabled={isLoading || !newCampaign.trim()}>
-                  {isLoading ? 'Creating...' : 'Create Link'}
-                </button>
-              </form>
-              
-              {createdToken && (
-                <div className="created-token">
-                  <h3>✓ Link Created!</h3>
-                  <div className="token-link">
-                    <input type="text" value={createdToken.shortLink} readOnly />
-                    <button onClick={() => copyToClipboard(createdToken.shortLink)}>
-                      Copy
-                    </button>
-                  </div>
-                  <p className="token-meta">
-                    Campaign: {createdToken.campaign}<br />
-                    Expires: {formatDate(createdToken.expiresAt)}
-                  </p>
-                </div>
-              )}
-            </section>
-            
-            {/* Existing tokens */}
-            <section className="tokens-list-section">
-              <h2>Active Links ({tokens.length})</h2>
-              <div className="tokens-list">
-                {tokens.length === 0 ? (
-                  <p className="no-data">No tokens created yet</p>
-                ) : (
-                  tokens.map((token) => (
-                    <div key={token.token} className="token-item">
-                      <div className="token-info">
-                        <strong>{token.campaign}</strong>
-                        <span className="token-code">{token.token}</span>
+            <section>
+              <h2 className="mb-4 text-lg font-semibold">Create New Link</h2>
+              <div className="card border border-base-300 bg-base-100">
+                <div className="card-body gap-4 p-6">
+                  <form onSubmit={createToken} className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div>
+                        <label className="mb-1 block text-sm font-medium">Campaign name</label>
+                        <input
+                          type="text"
+                          className="input w-full"
+                          value={newCampaign}
+                          onChange={(e) => setNewCampaign(e.target.value)}
+                          placeholder="e.g. Google SWE Intern 2026"
+                        />
                       </div>
-                      <div className="token-actions">
-                        <button onClick={() => copyToClipboard(token.shortLink)}>
-                          Copy Link
+                      <div>
+                        <label className="mb-1 block text-sm font-medium">Expires in (days)</label>
+                        <input
+                          type="number"
+                          className="input w-full"
+                          value={newDays}
+                          onChange={(e) => setNewDays(parseInt(e.target.value) || 30)}
+                          min={1}
+                          max={365}
+                        />
+                      </div>
+                    </div>
+                    <button
+                      type="submit"
+                      className="btn btn-primary sm:self-end"
+                      disabled={isLoading || !newCampaign.trim()}
+                    >
+                      {isLoading ? (
+                        <>
+                          <span className="loading loading-spinner loading-sm" />
+                          Creating…
+                        </>
+                      ) : (
+                        'Create Link'
+                      )}
+                    </button>
+                  </form>
+
+                  {createdToken && (
+                    <div className="alert alert-success alert-soft flex-col items-start gap-3">
+                      <h3 className="font-semibold">Link created</h3>
+                      <div className="flex w-full gap-2">
+                        <input type="text" className="input input-sm w-full font-mono" value={createdToken.shortLink} readOnly />
+                        <button
+                          type="button"
+                          className="btn btn-sm"
+                          onClick={() => copyToClipboard(createdToken.shortLink)}
+                        >
+                          Copy
                         </button>
                       </div>
-                      <div className="token-dates">
+                      <p className="text-xs text-base-content/70">
+                        Campaign: {createdToken.campaign} &middot; Expires: {formatDate(createdToken.expiresAt)}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </section>
+
+            {/* Existing tokens */}
+            <section>
+              <h2 className="mb-4 text-lg font-semibold">Active Links ({tokens.length})</h2>
+              {tokens.length === 0 ? (
+                <p className="text-sm text-base-content/50">No links created yet.</p>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  {tokens.map((token) => (
+                    <div
+                      key={token.token}
+                      className="flex flex-wrap items-center justify-between gap-4 rounded-box border border-base-300 bg-base-100 p-4"
+                    >
+                      <div className="flex flex-col">
+                        <span className="font-semibold">{token.campaign}</span>
+                        <span className="font-mono text-xs text-base-content/50">{token.token}</span>
+                      </div>
+                      <div className="flex flex-col text-xs text-base-content/60">
                         <span>Created: {formatDate(token.createdAt)}</span>
                         <span>Expires: {formatDate(token.expiresAt)}</span>
                       </div>
+                      <button className="btn btn-sm btn-outline" onClick={() => copyToClipboard(token.shortLink)}>
+                        Copy link
+                      </button>
                     </div>
-                  ))
-                )}
-              </div>
+                  ))}
+                </div>
+              )}
             </section>
           </div>
         )}
-        
+
         {activeTab === 'events' && (
-          <div className="events-panel">
-            <div className="analytics-header">
-              <h2>Analytics by Link</h2>
-              <button 
-                onClick={() => { loadTokens(password); loadEvents(password); }} 
-                className="refresh-btn"
+          <section>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Analytics by Link</h2>
+              <button
+                onClick={() => {
+                  loadTokens(password)
+                  loadEvents(password)
+                }}
+                className="btn btn-sm btn-outline"
               >
                 Refresh
               </button>
             </div>
-            
-            <div className="analytics-list">
-              {tokens.length === 0 ? (
-                <p className="no-data">No links created yet</p>
-              ) : (
-                tokens.map((token) => {
-                  // Get events for this specific token
-                  const tokenEvents = events.filter(e => e.token === token.token);
-                  const lastAccessed = tokenEvents.length > 0 
-                    ? tokenEvents[0].timestamp 
-                    : null;
-                  const accessCount = tokenEvents.length;
-                  
+
+            {tokens.length === 0 ? (
+              <p className="text-sm text-base-content/50">No links created yet.</p>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {tokens.map((token) => {
+                  const tokenEvents = events.filter((e) => e.token === token.token)
+                  const lastAccessed = tokenEvents.length > 0 ? tokenEvents[0].timestamp : null
+                  const accessCount = tokenEvents.length
+
                   return (
                     <AnalyticsItem
                       key={token.token}
@@ -377,15 +436,21 @@ function Admin() {
                       events={tokenEvents}
                       formatDate={formatDate}
                     />
-                  );
-                })
-              )}
+                  )
+                })}
+              </div>
+            )}
+          </section>
+        )}
+
+        {error && (
+          <div className="toast toast-end">
+            <div className="alert alert-error">
+              <span>{error}</span>
             </div>
           </div>
         )}
       </main>
-      
-      {error && <div className="error-toast">{error}</div>}
     </div>
   )
 }

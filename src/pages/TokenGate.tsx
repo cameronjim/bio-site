@@ -33,17 +33,18 @@ function TokenGate() {
 
   if (state === 'loading') {
     return (
-      <div className="loading">
-        <div className="spinner"></div>
-        <p>Loading...</p>
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-base-200 text-base-content/70">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+        <p className="text-sm">Loading…</p>
       </div>
     )
   }
 
   if (state === 'invalid') {
     return (
-      <div className="loading">
-        <p>Redirecting...</p>
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-base-200 text-base-content/70">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+        <p className="text-sm">Redirecting…</p>
       </div>
     )
   }
