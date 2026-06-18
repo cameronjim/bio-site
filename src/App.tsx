@@ -7,7 +7,10 @@ import Portfolio from './components/Portfolio'
 function App() {
   return (
     <Routes>
-      {/* Dev-only: preview the gated portfolio without a token. Stripped from production builds. */}
+      {/* Dev-only: preview the gated portfolio without a token at "/" or "/preview".
+          Both are stripped from production builds, where "/" falls through to the
+          catch-all (Expired) just like before. */}
+      {import.meta.env.DEV && <Route path="/" element={<Portfolio />} />}
       {import.meta.env.DEV && <Route path="/preview" element={<Portfolio />} />}
       <Route path="/t/:token" element={<TokenGate />} />
       <Route path="/admin" element={<Admin />} />
