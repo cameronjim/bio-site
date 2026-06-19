@@ -4,6 +4,8 @@ import tennis2026 from '../assets/athletics/tennis-2026.jpg'
 import tennis2024 from '../assets/athletics/tennis-2024.jpg'
 import valorant2023 from '../assets/athletics/valorant-2023.jpg'
 import feliks from '../assets/athletics/feliks.jpg'
+import piedPiperLogo from '../assets/pied-piper-logo.png'
+import PiedPiperPlayer from './PiedPiperPlayer'
 
 const NAV_LINKS = [
   { href: '#about', label: 'About' },
@@ -11,30 +13,46 @@ const NAV_LINKS = [
   { href: '#projects', label: 'Projects' },
   { href: '#skills', label: 'Skills' },
   { href: '#athletics', label: 'Athletics' },
+  { href: '#interests', label: 'Off the Clock' },
   { href: '#contact', label: 'Contact' },
 ]
 
 const SECTION_IDS = NAV_LINKS.map((link) => link.href.slice(1))
 
-// Track which section is currently in view so the nav can highlight it (scroll-spy).
+// Highlight the nav link for whichever section the reader is currently in.
+// Position-based (not IntersectionObserver) so it updates on every scroll and
+// stays correct even as lazy-loaded images change the page height.
 function useActiveSection() {
   const [active, setActive] = useState(SECTION_IDS[0])
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) setActive(entry.target.id)
-        }
-      },
-      // Fire when a section sits roughly in the middle of the viewport.
-      { rootMargin: '-45% 0px -50% 0px', threshold: 0 },
-    )
-    for (const id of SECTION_IDS) {
-      const el = document.getElementById(id)
-      if (el) observer.observe(el)
+    function update() {
+      // At the very bottom, the last section is current even if its top never
+      // scrolls past the activation line.
+      const atBottom =
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2
+      if (atBottom) {
+        setActive(SECTION_IDS[SECTION_IDS.length - 1])
+        return
+      }
+      // Current = the last section whose top has scrolled above the line just
+      // below the sticky header.
+      const line = 100
+      let current = SECTION_IDS[0]
+      for (const id of SECTION_IDS) {
+        const el = document.getElementById(id)
+        if (el && el.getBoundingClientRect().top <= line) current = id
+      }
+      setActive(current)
     }
-    return () => observer.disconnect()
+
+    update()
+    window.addEventListener('scroll', update, { passive: true })
+    window.addEventListener('resize', update)
+    return () => {
+      window.removeEventListener('scroll', update)
+      window.removeEventListener('resize', update)
+    }
   }, [])
 
   return active
@@ -50,6 +68,7 @@ function Portfolio() {
         <Projects />
         <Skills />
         <Athletics />
+        <Interests />
         <Contact />
       </main>
       <Footer />
@@ -65,7 +84,8 @@ function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-base-300 bg-base-100/90 backdrop-blur-sm">
       <div className="navbar mx-auto max-w-3xl px-6">
-        <div className="navbar-start">
+        <div className="navbar-start gap-2">
+          <img src={piedPiperLogo} alt="Pied Piper" className="h-11 w-auto" />
           <a href="#about" className="text-lg font-semibold tracking-tight">
             Cameron Jim
           </a>
@@ -84,6 +104,7 @@ function Header() {
               </li>
             ))}
           </ul>
+          <PiedPiperPlayer />
           <ThemeToggle />
           <div className="dropdown dropdown-end md:hidden">
             <div tabIndex={0} role="button" className="btn btn-ghost btn-circle" aria-label="Open menu">
@@ -415,7 +436,7 @@ type Team = {
   description: string
   achievements: string[]
   link?: { href: string; label: string }
-  photos?: { src: string; caption: string }[]
+  photos?: { src: string; caption: string; w: number; h: number }[]
 }
 
 function Athletics() {
@@ -434,8 +455,8 @@ function Athletics() {
         'High-school team captain (2021–2023), leading the team to two provincial championships',
       ],
       photos: [
-        { src: tennis2026, caption: '2026 U SPORTS national champions' },
-        { src: tennis2024, caption: '2024 U SPORTS national champions' },
+        { src: tennis2026, caption: 'U SPORTS national champions (2026)', w: 1600, h: 2000 },
+        { src: tennis2024, caption: 'U SPORTS national champions (2024)', w: 1124, h: 1500 },
       ],
     },
     {
@@ -450,7 +471,7 @@ function Athletics() {
         'Team shot-caller and in-game strategist',
       ],
       photos: [
-        { src: valorant2023, caption: 'First provincial title with my high-school team, 2023' },
+        { src: valorant2023, caption: 'First provincial title with my high-school team (2023)', w: 1600, h: 1200 },
       ],
     },
     {
@@ -467,7 +488,7 @@ function Athletics() {
       ],
       link: { href: 'https://www.worldcubeassociation.org/persons/2018JIMC01', label: 'WCA profile' },
       photos: [
-        { src: feliks, caption: 'Meeting Feliks Zemdegs, speedcubing world champion, back in 2018' },
+        { src: feliks, caption: 'Meeting Feliks Zemdegs, the Roger Federer of speedcubing (2018)', w: 1600, h: 2133 },
       ],
     },
   ]
@@ -489,6 +510,8 @@ function Athletics() {
                       <img
                         src={photo.src}
                         alt={photo.caption}
+                        width={photo.w}
+                        height={photo.h}
                         loading="lazy"
                         className="block h-auto w-full rounded-lg border border-base-300"
                       />
@@ -517,6 +540,59 @@ function Athletics() {
             </div>
           </article>
         ))}
+      </div>
+    </section>
+  )
+}
+
+function Interests() {
+  return (
+    <section id="interests" className="scroll-mt-20 border-t border-base-300 py-16">
+      <SectionHeading>Off the Clock</SectionHeading>
+      <div className="grid gap-5 sm:grid-cols-2">
+        <article className="card border border-base-300 bg-base-100">
+          <div className="card-body gap-3 p-6">
+            <h3 className="text-lg font-semibold">What I Watch</h3>
+            <p className="text-sm leading-relaxed text-base-content/80">
+              I'm a big fan of action, comedy, anime, and K-dramas. Silicon Valley is my all-time
+              favourite. I first watched it in grade 10 and it's a big reason I got into software
+              engineering (yes, the Pied Piper theme of this whole site is on purpose). I've rewatched
+              it probably 15 times since. Beyond that, some of my go-to shows are Umbrella Academy,
+              Brooklyn Nine-Nine, Blue Lock, While You Were Sleeping, and Hawkeye. For movies, I'll
+              watch anything Spider-Man (especially the Spider-Verse films), and some of my favourites
+              are Obsession, Memento, 21, and Endgame.
+            </p>
+          </div>
+        </article>
+        <article className="card border border-base-300 bg-base-100">
+          <div className="card-body gap-3 p-6">
+            <h3 className="text-lg font-semibold">What I Cook</h3>
+            <p className="text-sm leading-relaxed text-base-content/80">
+              I spend a lot of time in the kitchen and tend to gravitate toward Asian cooking,
+              especially Chinese rice dishes with braised meats. I also love making Italian cream sauce
+              pastas, and on the comfort food side I'm usually making things like beef stew, pan-fried
+              chicken, or a good steak with a pan sauce. Cooking is one of those things I do for comfort
+              rather than survival, and it calms me down.
+            </p>
+          </div>
+        </article>
+      </div>
+
+      {/* Homage: the original "Pied Piper" the show's company is named after. */}
+      <div className="card mt-5 border border-base-300 bg-base-100">
+        <div className="card-body gap-3 p-6">
+          <p className="text-sm text-base-content/70">
+            The song behind it all: the original Pied Piper by Crispian St. Peters (1966).
+          </p>
+          <iframe
+            title="The Pied Piper by Crispian St. Peters"
+            src="https://open.spotify.com/embed/track/6H38Ea6neHRvw43XMn6MmM"
+            className="w-full rounded-lg border-0"
+            height="152"
+            loading="lazy"
+            allow="encrypted-media; clipboard-write"
+          />
+        </div>
       </div>
     </section>
   )
