@@ -9,6 +9,12 @@
     <meta name="robots" content="noindex, nofollow" />
     <meta name="googlebot" content="noindex, nofollow" />
 
+    <!-- Don't leak the token-bearing URL path to third-party embeds (fonts,
+         Spotify, YouTube) via the Referer header. The CSP, HSTS, X-Frame-Options
+         and X-Content-Type-Options headers belong on a CloudFront response-
+         headers policy, not here. -->
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
     <title>Cameron Jim | Software Engineer</title>
     <meta name="description" content="Personal portfolio of Cameron Jim, Software Engineer" />
 
