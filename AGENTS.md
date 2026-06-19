@@ -1,4 +1,4 @@
-# CLAUDE.md
+# AGENTS.md
 
 Engineering standards for **bio-site** — a token-gated personal portfolio. This
 file is the source of truth for structure, style, and conventions. Match it when
@@ -12,8 +12,8 @@ are editing.
 A private React + TypeScript single-page app, gated behind unique access tokens,
 backed by AWS Lambda. The frontend is built with Vite and styled with Tailwind CSS
 v4 + daisyUI. Three Lambda functions handle token validation, short-link
-redirects, and an admin API. Auto-deploys to AWS on merge to `main` (see
-`.github/DEPLOYMENT.md`).
+redirects, and an admin API. Auto-deploys to AWS on merge to `main` via GitHub
+Actions + OIDC.
 
 **Stack:** React 19, TypeScript (strict), Vite 7, Tailwind v4, daisyUI 5,
 React Router 7, AWS Lambda (Node 20), API Gateway, DynamoDB, CloudFront, S3.
@@ -172,8 +172,7 @@ attribute on its own line with the closing `>` aligned to the opening tag, e.g.:
   go green, then merge. Merge to `main` auto-deploys via GitHub Actions + OIDC.
 - Commit messages: short imperative subject, lower-case, no trailing period
   (`fix analytics double-count`).
-- `package-lock.json` is intentionally gitignored; CI uses `npm install`.
-- Full deploy details: `.github/DEPLOYMENT.md`.
+- `package-lock.json` is committed (root + `lambda/admin`); CI uses `npm ci`.
 
 ## 11. Quick do / don't
 

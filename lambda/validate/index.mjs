@@ -9,14 +9,19 @@
 
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
-import { createHash } from 'crypto';
+import { createHmac } from 'crypto';
 
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
 
 const TOKENS_TABLE = process.env.TOKENS_TABLE || 'Tokens';
 const EVENTS_TABLE = process.env.EVENTS_TABLE || 'TokenEvents';
-const IP_SALT = process.env.IP_SALT || 'default-salt-change-me';
+// No default: a known salt makes the IP hash reversible (the whole IPv4 space
+// is tiny). With no salt set we store null instead of a guessable hash.
+const IP_SALT = process.env.IP_SALT || null;
+// Auto-purge analytics after this window (enable DynamoDB TTL on the events
+// table with attribute name "expiresAt").
+const EVENTS_TTL_DAYS = Number(process.env.EVENTS_TTL_DAYS) || 180;
 
 // CORS headers for the frontend
 const CORS_HEADERS = {
@@ -27,7 +32,8 @@ const CORS_HEADERS = {
 };
 
 export const handler = async (event) => {
-  console.log('Validate Lambda invoked:', JSON.stringify(event));
+  // Never log the full event — the access token rides in the query string and
+  // would land in CloudWatch in plaintext.
 
   // Handle CORS preflight
   if (event.requestContext?.http?.method === 'OPTIONS' || event.httpMethod === 'OPTIONS') {
@@ -50,7 +56,7 @@ export const handler = async (event) => {
     const tokenData = await getToken(token);
 
     if (!tokenData || isTokenInvalid(tokenData)) {
-      console.log('Token invalid or not found:', token);
+      console.log('Token invalid or not found');
       return response({ valid: false });
     }
 
@@ -117,6 +123,7 @@ async function logEvent(token, eventType, requestEvent) {
       userAgent,
       ipHash,
       referrer: requestEvent.headers?.referer || requestEvent.headers?.Referer || null,
+      expiresAt: Math.floor(Date.now() / 1000) + EVENTS_TTL_DAYS * 24 * 60 * 60,
     },
   });
 
@@ -124,8 +131,10 @@ async function logEvent(token, eventType, requestEvent) {
 }
 
 function hashIp(ip) {
-  if (ip === 'unknown') return 'unknown';
-  return createHash('sha256').update(ip + IP_SALT).digest('hex').substring(0, 16);
+  // Without a secret salt, refuse to store a guessable hash — record null
+  // rather than pretend to anonymise. HMAC keys the hash to the secret salt.
+  if (ip === 'unknown' || !IP_SALT) return null;
+  return createHmac('sha256', IP_SALT).update(ip).digest('hex').substring(0, 16);
 }
 
 function response(body) {
