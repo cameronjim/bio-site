@@ -461,7 +461,7 @@ function Athletics() {
     },
     {
       title: 'Valorant',
-      subtitle: 'Team Shot-Caller & In-Game Strategist',
+      subtitle: 'Team Captain, In-Game Leader (IGL)',
       description:
         "I've been gaming for about 8 years now, and it's taught me more than most people would expect. Competitive gaming demands fast decision-making under pressure, clear communication with teammates, and the ability to adapt strategies in real time. As a team shot-caller, I learned how to lead through chaos, keep people focused, and make split-second calls that the whole team commits to. Some of my closest friendships came from gaming, and those relationships carried over into real competitive success. I captained my high-school Valorant team for two years, leading the squad to back-to-back provincial championships and earning tournament MVP in both. More recently, I teamed up with some friends to enter a UBC tournament where we took first place, beating the varsity UBC team in the process.",
       achievements: [
@@ -582,7 +582,7 @@ function Interests() {
       <div className="card mt-5 border border-base-300 bg-base-100">
         <div className="card-body gap-3 p-6">
           <p className="text-sm text-base-content/70">
-            The song behind it all: the original Pied Piper by Crispian St. Peters (1966).
+            Homage to the 'Theme Song' of the show: The Pied Piper by Crispian St. Peters (1966).
           </p>
           <iframe
             title="The Pied Piper by Crispian St. Peters"
