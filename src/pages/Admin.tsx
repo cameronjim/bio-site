@@ -215,6 +215,34 @@ function Admin() {
     setToast('Link copied')
   }
 
+  async function deleteToken(token: string) {
+    if (!window.confirm('Delete this link? It will stop working immediately.')) return
+
+    setIsLoading(true)
+    try {
+      const response = await fetch(`${API_BASE}/admin/tokens`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${password}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action: 'delete', token }),
+      })
+
+      if (response.ok) {
+        setToast('Link deleted')
+        loadTokens(password)
+        loadEvents(password)
+      } else {
+        setError('Failed to delete link')
+      }
+    } catch (err) {
+      setError('Connection error')
+    }
+
+    setIsLoading(false)
+  }
+
   function formatDate(dateStr: string | number) {
     const date = typeof dateStr === 'number' ? new Date(dateStr * 1000) : new Date(dateStr)
     return date.toLocaleDateString('en-US', {
@@ -257,7 +285,7 @@ function Admin() {
             >
               <input
                 type="password"
-                className="input w-full"
+                className="input w-full border border-base-300"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
@@ -334,7 +362,7 @@ function Admin() {
                         <label className="mb-1 block text-sm font-medium">Campaign name</label>
                         <input
                           type="text"
-                          className="input w-full"
+                          className="input w-full border border-base-300"
                           value={newCampaign}
                           onChange={(e) => setNewCampaign(e.target.value)}
                           placeholder="e.g. Google SWE Intern 2026"
@@ -345,7 +373,7 @@ function Admin() {
                         <input
                           type="text"
                           inputMode="numeric"
-                          className="input w-full"
+                          className="input w-full border border-base-300"
                           value={newDays}
                           onChange={(e) =>
                             setNewDays(e.target.value.replace(/\D/g, '').replace(/^0+(?=\d)/, ''))
@@ -395,9 +423,17 @@ function Admin() {
                         <span>Created: {formatDate(token.createdAt)}</span>
                         <span>Expires: {formatDate(token.expiresAt)}</span>
                       </div>
-                      <button className="btn btn-sm btn-outline" onClick={() => copyToClipboard(token.shortLink)}>
-                        Copy link
-                      </button>
+                      <div className="flex gap-2">
+                        <button className="btn btn-sm btn-outline" onClick={() => copyToClipboard(token.shortLink)}>
+                          Copy link
+                        </button>
+                        <button
+                          className="btn btn-sm btn-outline btn-error"
+                          onClick={() => deleteToken(token.token)}
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
