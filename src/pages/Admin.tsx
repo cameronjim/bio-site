@@ -10,7 +10,7 @@ interface Token {
   campaign: string
   shortLink: string
   createdAt: string
-  expiresAt: number
+  expiresAt?: number // absent for indefinite (never-expiring) links
 }
 
 interface Event {
@@ -112,6 +112,8 @@ function Admin() {
   // New token form
   const [newCampaign, setNewCampaign] = useState('')
   const [newDays, setNewDays] = useState('30')
+  const [newCustomToken, setNewCustomToken] = useState('')
+  const [newNoExpiry, setNewNoExpiry] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
 
   // Resume an existing session (the short-lived token, not the password).
@@ -187,9 +189,11 @@ function Admin() {
   async function createToken(e: React.FormEvent) {
     e.preventDefault()
     const days = parseInt(newDays, 10)
-    if (!newCampaign.trim() || !Number.isInteger(days) || days < 1) return
+    if (!newCampaign.trim()) return
+    if (!newNoExpiry && (!Number.isInteger(days) || days < 1 || days > 365)) return
 
     setIsLoading(true)
+    setError('')
 
     try {
       const response = await fetch(`${API_BASE}/admin/tokens`, {
@@ -200,16 +204,22 @@ function Admin() {
         },
         body: JSON.stringify({
           campaign: newCampaign.trim(),
-          days,
+          days: newNoExpiry ? undefined : days,
+          customToken: newCustomToken.trim() || undefined,
+          noExpiry: newNoExpiry,
         }),
       })
 
       if (response.ok) {
         setNewCampaign('')
+        setNewCustomToken('')
+        setNewNoExpiry(false)
         setToast('Link created')
         loadTokens(session)
       } else {
-        setError('Failed to create token')
+        // Surface the API's specific message (taken / reserved / out-of-range).
+        const data = await response.json().catch(() => ({}))
+        setError(data.error || 'Failed to create link')
       }
     } catch (err) {
       setError('Connection error')
@@ -272,7 +282,11 @@ function Admin() {
   }
 
   // The days field is free-text so it can be cleared; valid = a positive integer.
-  const daysValid = newDays !== '' && Number.isInteger(parseInt(newDays, 10)) && parseInt(newDays, 10) >= 1
+  const daysValid =
+    newDays !== '' &&
+    Number.isInteger(parseInt(newDays, 10)) &&
+    parseInt(newDays, 10) >= 1 &&
+    parseInt(newDays, 10) <= 365
 
   // Login screen
   if (!isAuthenticated) {
@@ -365,7 +379,7 @@ function Admin() {
               <h2 className="mb-4 text-lg font-semibold">Create New Link</h2>
               <div className="card border border-base-300 bg-base-100">
                 <div className="card-body gap-4 p-6">
-                  <form onSubmit={createToken} className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
+                  <form onSubmit={createToken} className="flex flex-col gap-4">
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div>
                         <label className="mb-1 block text-sm font-medium">Campaign name</label>
@@ -378,23 +392,48 @@ function Admin() {
                         />
                       </div>
                       <div>
+                        <label className="mb-1 block text-sm font-medium">
+                          Custom link <span className="font-normal text-base-content/50">(optional)</span>
+                        </label>
+                        <input
+                          type="text"
+                          maxLength={64}
+                          className="input w-full border border-base-300"
+                          value={newCustomToken}
+                          onChange={(e) => setNewCustomToken(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
+                          placeholder="e.g. dev → /dev"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid items-end gap-4 sm:grid-cols-2">
+                      <div>
                         <label className="mb-1 block text-sm font-medium">Expires in (days)</label>
                         <input
                           type="text"
                           inputMode="numeric"
                           className="input w-full border border-base-300"
-                          value={newDays}
+                          value={newNoExpiry ? '' : newDays}
                           onChange={(e) =>
                             setNewDays(e.target.value.replace(/\D/g, '').replace(/^0+(?=\d)/, ''))
                           }
                           placeholder="30"
+                          disabled={newNoExpiry}
                         />
                       </div>
+                      <label className="flex h-12 cursor-pointer items-center gap-2">
+                        <input
+                          type="checkbox"
+                          className="checkbox checkbox-sm"
+                          checked={newNoExpiry}
+                          onChange={(e) => setNewNoExpiry(e.target.checked)}
+                        />
+                        <span className="text-sm font-medium">Never expires</span>
+                      </label>
                     </div>
                     <button
                       type="submit"
-                      className="btn btn-primary sm:self-end"
-                      disabled={isLoading || !newCampaign.trim() || !daysValid}
+                      className="btn btn-primary sm:self-start"
+                      disabled={isLoading || !newCampaign.trim() || (!newNoExpiry && !daysValid)}
                     >
                       {isLoading ? (
                         <>
@@ -430,7 +469,7 @@ function Admin() {
                       </div>
                       <div className="flex flex-col text-xs text-base-content/60">
                         <span>Created: {formatDate(token.createdAt)}</span>
-                        <span>Expires: {formatDate(token.expiresAt)}</span>
+                        <span>Expires: {token.expiresAt ? formatDate(token.expiresAt) : 'Never'}</span>
                       </div>
                       <div className="flex gap-2">
                         <button className="btn btn-sm btn-outline" onClick={() => copyToClipboard(token.shortLink)}>
