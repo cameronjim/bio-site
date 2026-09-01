@@ -5,7 +5,10 @@ import tennis2024 from '../assets/athletics/tennis-2024.jpg'
 import valorant2023 from '../assets/athletics/valorant-2023.jpg'
 import feliks from '../assets/athletics/feliks.jpg'
 import piedPiperLogo from '../assets/pied-piper-logo.png'
+import spidermanLogo from '../assets/spiderman-logo.png'
+import headshot from '../assets/headshot.jpeg'
 import PiedPiperPlayer from './PiedPiperPlayer'
+import { useTheme } from '../hooks/useTheme'
 
 const NAV_LINKS = [
   { href: '#about', label: 'About' },
@@ -78,6 +81,9 @@ function Portfolio() {
 
 function Header() {
   const active = useActiveSection()
+  const theme = useTheme()
+  const isPiedPiper = theme === 'piedpiper'
+  const isSpiderman = theme === 'spiderman'
   const linkClass = (href: string) =>
     href === `#${active}` ? 'text-primary font-semibold' : ''
 
@@ -85,7 +91,10 @@ function Header() {
     <header className="sticky top-0 z-50 border-b border-base-300 bg-base-100/90 backdrop-blur-sm">
       <div className="navbar mx-auto max-w-3xl px-6">
         <div className="navbar-start gap-2">
-          <img src={piedPiperLogo} alt="Pied Piper" className="h-11 w-auto" />
+          {isPiedPiper && <img src={piedPiperLogo} alt="Pied Piper" className="h-11 w-auto" />}
+          {isSpiderman && (
+            <img src={spidermanLogo} alt="Spider-Man" className="h-9 w-auto rounded-sm" />
+          )}
           <a href="#about" className="text-lg font-semibold tracking-tight">
             Cameron Jim
           </a>
@@ -104,7 +113,7 @@ function Header() {
               </li>
             ))}
           </ul>
-          <PiedPiperPlayer />
+          {isPiedPiper && <PiedPiperPlayer />}
           <ThemeToggle />
           <div className="dropdown dropdown-end md:hidden">
             <div tabIndex={0} role="button" className="btn btn-ghost btn-circle" aria-label="Open menu">
@@ -137,12 +146,21 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 function Hero() {
   return (
     <section id="about" className="scroll-mt-20 py-16 sm:py-20">
-      <p className="mb-3 text-sm font-medium uppercase tracking-widest text-primary">
-        Computer Engineer
-      </p>
-      <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-        Cameron Jim
-      </h1>
+      <div className="flex items-start gap-12 sm:gap-16">
+        <div>
+          <p className="mb-3 text-sm font-medium uppercase tracking-widest text-primary">
+            Computer Engineer
+          </p>
+          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+            Cameron Jim
+          </h1>
+        </div>
+        <img
+          src={headshot}
+          alt="Cameron Jim"
+          className="-mt-8 h-32 w-32 flex-none rounded-lg border-2 border-base-300 object-cover sm:-mt-10 sm:h-40 sm:w-40"
+        />
+      </div>
       <p className="mt-4 max-w-2xl text-lg leading-relaxed text-base-content/70">
         Hi! I'm Cameron, a fourth-year Computer Engineering student-athlete at UBC (expected May 2028) and
         current Team Captain of the UBC Men's Varsity Tennis Team. I'm currently on co-op as a QA Software

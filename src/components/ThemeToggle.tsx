@@ -1,29 +1,17 @@
-import { useEffect, useState } from 'react'
-
-type Theme = 'lofi' | 'business' | 'piedpiper'
+import { applyTheme, useTheme, type Theme } from '../hooks/useTheme'
 
 const THEMES: { value: Theme; label: string }[] = [
   { value: 'lofi', label: 'Light' },
   { value: 'business', label: 'Dark' },
   { value: 'piedpiper', label: 'Pied Piper' },
+  { value: 'spiderman', label: 'Spider-Man' },
 ]
 
-function getInitialTheme(): Theme {
-  const current = document.documentElement.getAttribute('data-theme')
-  if (current === 'lofi' || current === 'business' || current === 'piedpiper') return current
-  return 'piedpiper'
-}
-
 function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>(getInitialTheme)
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
-    localStorage.setItem('theme', theme)
-  }, [theme])
+  const theme = useTheme()
 
   function select(next: Theme) {
-    setTheme(next)
+    applyTheme(next)
     // Close the dropdown after choosing (daisyUI dropdowns close on blur).
     ;(document.activeElement as HTMLElement | null)?.blur()
   }

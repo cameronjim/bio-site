@@ -33,10 +33,10 @@
 
     <script>
       // Apply the persisted theme before React paints — prevents a flash of the
-      // wrong theme. 'lofi' (light), 'business' (dark), 'piedpiper' (homage).
+      // wrong theme. 'lofi' (light), 'business' (dark), 'piedpiper'/'spiderman' (homages).
       (function () {
         var stored = localStorage.getItem('theme');
-        var valid = stored === 'lofi' || stored === 'business' || stored === 'piedpiper';
+        var valid = stored === 'lofi' || stored === 'business' || stored === 'piedpiper' || stored === 'spiderman';
         var theme = valid ? stored : 'piedpiper';
         document.documentElement.setAttribute('data-theme', theme);
       })();
