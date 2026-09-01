@@ -138,24 +138,23 @@ function Hero() {
   return (
     <section id="about" className="scroll-mt-20 py-16 sm:py-20">
       <p className="mb-3 text-sm font-medium uppercase tracking-widest text-primary">
-        Software Engineer
+        Computer Engineer
       </p>
       <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
         Cameron Jim
       </h1>
       <p className="mt-4 max-w-2xl text-lg leading-relaxed text-base-content/70">
-        Hi! I'm Cameron, a fourth-year Computer Engineering student at UBC (expected May 2028) and
-        Team Captain of the UBC Men's Varsity Tennis Team. I'm currently on co-op as a QA Software
-        Engineer, where I write Playwright JavaScript for e2e test automation, build API test suites
-        with C# and NUnit, and write SQL queries for data verification, all within an Agile
-        environment. Previously, I completed a co-op at Sitewise Analytics building scalable
-        enterprise application features with React and TypeScript.
+        Hi! I'm Cameron, a fourth-year Computer Engineering student-athlete at UBC (expected May 2028) and
+        current Team Captain of the UBC Men's Varsity Tennis Team. I'm currently on co-op as a QA Software
+        Engineer, where I write performance, E2E, and API tests. Last summer, I completed a 4 month co-op at 
+        Sitewise Analytics as a Software Engineer.
       </p>
       <p className="mt-4 max-w-2xl text-lg leading-relaxed text-base-content/70">
-        Outside of my co-op work, I've been building hands-on experience in robotics and autonomous
-        systems. I recently developed a self-driving car using both reactive control algorithms and a
-        reinforcement learning agent trained to navigate autonomously. I'm passionate about this space
-        and actively seeking my next co-op in a robotics-focused software engineering role.
+        Outside of my co-op work, I have been building side projects to explore my interests, as well as learn 
+        new technologies. Most recently I have been developing a gameboy color emulator written in C/C++, while 
+        also developing games from scratch using gbdk-2020. Another of my favourite projects was building a physical 
+        1/10 scale racing car, developing firmware for it, and teaching it to drive autonomously using reinforcement learning models.
+        I am very passionate about both game development and robotics, and I am excited to explore opportunities in these areas.
       </p>
       <p className="mt-2 text-sm text-base-content/60">
         University of British Columbia &middot; Vancouver, BC
@@ -191,16 +190,25 @@ function Hero() {
 function Experience() {
   const experiences = [
     {
+      company: 'Ursa Care Ride',
+      location: 'Vancouver, BC',
+      role: 'Technical Co-founder',
+      period: 'Present',
+      highlights: [
+        'Building a real-time ride dispatch platform for foster child transport, focusing on safety for children',
+        'Developing a React + TypeScript front end, a Node.js + Express backend, and PostgreSQL database',
+        'Designed a Hungarian-algorithm (Kuhn-Munkres) solver to optimize driver-to-request matching',
+      ],
+    },
+    {
       company: 'British Columbia Maritime Employers Association (BCMEA)',
       location: 'Vancouver, BC',
       role: 'QA Software Engineer (Co-op)',
       period: 'May 2026 – Dec 2026',
       highlights: [
-        'Developed end-to-end test automation suites in Playwright JavaScript, improving regression coverage across critical B2B workflows',
-        'Built and maintained API test automation using C# and NUnit, validating RESTful endpoints alongside manual Postman testing for exploratory and edge-case scenarios',
-        'Wrote SQL queries against production and test databases to verify data integrity, trace defects, and validate backend logic independently of the UI',
-        'Performed cross-browser and cross-platform validation using BrowserStack, ensuring consistent behavior across devices and environments',
-        'Collaborated with developers in an Agile environment with established code review processes, Git workflows, and sprint ceremonies',
+        'Built k6 load and performance testing suites to catch latency and throughput regressions',
+        'Developed end-to-end Playwright test automation to validate key workflows for every release',
+        'Built API test coverage in C# with NUnit to validate data integrity',
       ],
     },
     {
@@ -209,22 +217,19 @@ function Experience() {
       role: 'Software Engineer (Co-op)',
       period: 'May 2025 – Sept 2025',
       highlights: [
-        'Developed scalable features for an enterprise SaaS application using React, TypeScript, Redux Toolkit (RTK Query), and Vite',
-        'Built data-driven UI components connecting backend API services with the Google Maps API for dynamic visualizations',
-        'Leveraged custom MCP servers, Figma, and Playwright to streamline development workflows',
-        'Collaborated in an agile environment following established code review processes and Git workflows',
-        'Helped migrate the front-end build to a CI/CD workflow, enabling automatic PR builds, previews, and coverage checks',
+        'Developed complex features for an enterprise SaaS app in React and TypeScript',
+        'Accelerated development with custom MCP servers for Figma, Playwright, and Vite',
+        'Created a CI/CD pipeline, adding automatic PR builds, running tests, and deployments to production',
       ],
     },
     {
-      company: 'Turing AI (Google)',
+      company: 'Turing AI',
       location: 'Vancouver, BC (Remote)',
-      role: 'STEM Annotator',
+      role: 'ML Training Data Analyst ',
       period: 'Dec 2024 – Jan 2025',
       highlights: [
-        "Led Computer Science and Physics teams to create and verify AP-level problems for training Google's AI model, contributing to what is now Gemini 2.5",
-        'Matched AI-generated responses against multiple models and collected comparative data from Gemini and other AI systems',
-        'Created detailed analytical reports sent directly to Google for model-improvement insights',
+        "Team lead for CS and Physics teams, creating AP-level problems as training data for Gemini 2.5",
+        'Benchmarked AI-generated responses against standards and generated analytic reports for Google',
       ],
     },
     {
@@ -233,9 +238,8 @@ function Experience() {
       role: 'Tennis Instructor (Part-Time)',
       period: 'Nov 2020 – Jun 2023',
       highlights: [
-        'Coached beginner and intermediate students aged 4–13, teaching proper technique, game fundamentals, and strategic thinking',
-        'Developed engaging lesson plans that inspired young athletes to build confidence and sportsmanship',
-        'Emphasized teamwork, leadership, and communication through structured activities and positive reinforcement',
+        'Coached beginner and intermediate students aged 4–13 on technique, fundamentals, and strategy',
+        'Built lesson plans emphasizing teamwork, confidence, sportsmanship, and an inclusive environment',
       ],
     },
   ]
@@ -279,6 +283,7 @@ type Project = {
   repo?: string // GitHub URL — leave '' to hide the button
   demo?: string // live site or demo video URL (YouTube/Loom is fine) — leave '' to hide
   image?: string // screenshot/clip in public/, e.g. '/projects/nba.png' — leave '' to hide
+  images?: { src: string; caption: string }[] // multiple screenshots, e.g. one per game
 }
 
 function Projects() {
@@ -286,49 +291,95 @@ function Projects() {
   // to its path (e.g. '/projects/nba.png'). Set `repo`/`demo` to show link buttons.
   const projects: Project[] = [
     {
-      title: 'NBA Stats & Fantasy Trade Analyzer',
-      demo: 'https://fantasy-nba.cameronjim.com',
-      repo: '', // TODO: add the GitHub repo URL
-      image: '', // TODO: e.g. '/projects/nba.png'
+      title: 'Game Boy Emulator',
+      repo: 'https://github.com/cameronjim/gameboy-emulator',
+      demo: '',
+      images: [
+        { src: '/projects/gbemu/tetris.png', caption: 'Tetris' },
+        { src: '/projects/gbemu/crossy-road.png', caption: 'Crossy Road' },
+        { src: '/projects/gbemu/flappy-bird.png', caption: 'Flappy Bird' },
+        { src: '/projects/gbemu/mario.png', caption: 'Super Mario Bros Deluxe' },
+      ],
       description:
-        'A production-deployed full-stack NBA fantasy and analytics platform built end-to-end as a solo developer. Users can track live scores, manage a fantasy roster, receive AI-powered team analysis and trade suggestions via the Anthropic Claude API, and log sports bets with real-time odds. The app runs on a serverless AWS stack with a fully automated two-environment CI/CD pipeline, OIDC-federated deploys, and 200+ automated tests across every layer.',
+        'A Game Boy Color (DMG/CGB) emulator built from scratch in C/C++ compatible on Windows, MacOS, and Linux. This project implements a full CPU, PPU, APU, and cartridge mapper support (MBC1/3/5) for running real commercial ROMs. The emulator is verified by running the same test suites real emulator authors use - blargg, Mooneye, and the pixel-exact acid2 tests. I\'ve also written original games from scratch with gbdk-2020, including Tetris, Flappy Bird, Crossy Road, and Super Mario Bros Deluxe.',
       technologies: [
-        'React 18, TypeScript (strict), Vite 6, Tailwind CSS 4, DaisyUI 5, React Router 7, Axios, Google OAuth, lucide-react',
-        'Node.js 22, Express 4, serverless-http, JWT, bcrypt, Helmet, Anthropic Claude SDK, Google Auth Library, AWS SDK v3 (SES)',
-        'PostgreSQL (Neon serverless), hand-written schema with sequential migrations',
-        'Python, Scrapy, nba_api, BeautifulSoup, psycopg2',
-        'AWS Lambda, API Gateway, S3, CloudFront, SES, IAM (OIDC federation), Serverless Framework v3 (CloudFormation)',
-        'GitHub Actions (CI/CD, scheduled cron)',
-        'Vitest, Supertest, React Testing Library, Playwright (Page Object Model)',
+        'C, C++, CMake, SDL2, gbdk-2020',
+        'Custom CPU/PPU/APU core, MBC1/3/5 cartridge support',
+        'blargg, Mooneye, acid2 test suites',
       ],
     },
     {
-      title: 'F1TENTH Autonomous Driving',
-      repo: 'https://github.com/cameronjim/f1tenth-autonomous-racing',
-      demo: '', // TODO: add a driving demo video URL (YouTube/Loom)
-      image: '', // TODO: e.g. '/projects/f1tenth.png'
+      title: 'Physical Autonomous Racing Car',
+      repo: 'https://github.com/cameronjim/fast-car',
+      demo: '',
+      image: '', // TODO: e.g. '/projects/fast-car.png'
       description:
-        'An autonomous driving software stack for the F1TENTH 1/10-scale race car, built in ROS 2 and runnable in both simulation and on the physical car. The project implements and compares two complete driving approaches: classical reactive controllers (wall following, gap following, vision-based lane following) and a learning-based controller trained with behavioural cloning and then fine-tuned with Soft Actor-Critic reinforcement learning. Both share an independent LiDAR-based safety layer for automatic emergency braking, allowing driving policies to be swapped or retrained without compromising collision avoidance.',
+        'A full-stack project spanning simulation and hardware. I built a custom 1/10-scale racing car with sensors, motors, a Jetson, and a chassis. I also wrote firmware for the microcontrollers. I trained SAC and PPO agents from scratch against the F1TENTH Gym for pure speed, upgrading an existing pure pursuit model I had. This model runs on a ROS 2 stack with an independent LiDAR safety layer for emergency braking.',
       technologies: [
-        'ROS 2 (ament_python, nodes, topics, parameters, launch files), F1TENTH Gym simulator',
-        'Linux/Ubuntu, Docker, NVIDIA Jetson, SSH',
-        'LiDAR (LaserScan), RGB camera (Image), odometry, Ackermann drive',
-        'PID control, LiDAR gap-following with disparity extension, wall following (two-ray geometry), automatic emergency braking (TTC)',
-        'OpenCV, cv_bridge (grayscale, morphological filtering, thresholding, contour detection)',
-        'PyTorch, behavioural cloning (MLP, MSE loss), Soft Actor-Critic RL (Gaussian policy, twin critics, automatic entropy tuning, replay buffer, Polyak target updates)',
-        'BC-to-SAC warm starting, BC-regularized RL fine-tuning',
-        'NumPy, pandas, ROS bag extraction, time synchronization, data augmentation',
+        'Python, C++, C, ROS 2, F1TENTH Gym, NVIDIA Jetson',
+        'PyTorch, SAC, PPO',
+      ],
+    },
+    {
+      title: 'NBA IQ',
+      demo: 'https://nbaiq.cameronjim.com',
+      repo: 'https://github.com/cameronjim/nba-iq',
+      image: '', // TODO: e.g. '/projects/nba-iq.png'
+      description:
+        "A full-stack NBA fantasy analytics platform, built for reliable projections. A routine scraping pipeline feeds box scores, odds, stats, and injuries into Postgres, which is run through a 3 model LightGBM system. This large ML system is trained on 29 seasons of individual player performance, weight tuned for accuracy, and built specifically to outperform generic LLMs. In turn, an AI powered assistant reads a user's roster and suggestions to come up with the best possible trades and waiver moves.",
+      technologies: [
+        'Python, LightGBM, pandas',
+        'React, TypeScript, Vite, Tailwind CSS, DaisyUI',
+        'Node.js, Express, PostgreSQL, Neon',
+        'AWS Lambda, API Gateway, S3, CloudFront, CI/CD',
+        'Vitest, Playwright, pytest',
+      ],
+    },
+    {
+      title: 'rv32-core',
+      repo: 'https://github.com/cameronjim/rv32-core',
+      demo: '',
+      image: '', // TODO: e.g. '/projects/rv32-core.png'
+      description:
+        'A RISC-V RV32I CPU designed from scratch in SystemVerilog and synthesized onto a Cyclone V FPGA (DE1-SoC). It is a real processor and runs real machine code on physical hardware in a 5 stage pipeline (fetch, decode, execute, memory, writeback). It implements the full RV32I instruction set as a single-cycle datapath, with memory-mapped I/O to the board\'s LEDs, displays, switches, and buttons.',
+      technologies: [
+        'SystemVerilog, Quartus Prime, Cyclone V FPGA',
+        'Icarus Verilog, GTKWave'
+      ],
+    },
+    {
+      title: 'nullsh',
+      repo: 'https://github.com/cameronjim/nullsh',
+      demo: '',
+      image: '', // TODO: e.g. '/projects/nullsh.png'
+      description:
+        'A Unix shell written in C17 with no dependencies, made for my own educational purposes. Its own lexer, parser, and executor have been implemented from scratch. The shell also has job control with process groups and signal handling, and a custom memory allocator that replaces malloc (first-fit/buddy). It also ships an ELF inspector, a CHIP-8 emulator, and a raw-socket packet monitor.',
+      technologies: [
+        'C17, GNU Make',
+        'Custom allocator, job control, signal handling',
+        'ELF parser, CHIP-8 emulator, packet decoder',
+      ],
+    },
+    {
+      title: 'Cubetimer',
+      repo: 'https://github.com/cameronjim/tui-cube-timer',
+      demo: '',
+      image: '', // TODO: e.g. '/projects/cubetimer.png'
+      description:
+        'A speedcube timer that is built for speedcubing & engineers. It is written in Rust, with ratatui for the UI, WCA-style averages, a trend graph, and full csTimer import/export compatibility.',
+      technologies: [
+        'Rust, ratatui',
       ],
     },
     {
       title: 'Token-Gated Portfolio',
       repo: 'https://github.com/cameronjim/bio-site',
       description:
-        'This site. A private, serverless portfolio where access is granted through unique, time-limited tokens, enabling privacy-respecting analytics without invasive tracking. It runs on AWS Lambda, API Gateway, DynamoDB, and CloudFront, with React and TypeScript on the front end. Every merge to main deploys automatically through a GitHub Actions CI/CD pipeline that authenticates to AWS with short-lived OIDC-federated credentials, updates the Lambda functions, syncs the front end to S3, and invalidates the CDN cache.',
+        'This website. It is a private, serverless portfolio where access is granted through unique, time-limited tokens, enabling privacy-respecting analytics. It runs on AWS Lambda, API Gateway, DynamoDB, and CloudFront, and written with React and TypeScript on the frontend. A CI/CD pipeline is triggered on merge to main through a GitHub Actions workflow that authenticates to AWS with OIDC credentials, updates the Lambda functions, syncs the front end to S3, and invalidates the CDN cache.',
       technologies: [
         'React, TypeScript, Vite, Tailwind CSS, DaisyUI',
         'AWS Lambda, API Gateway, DynamoDB, CloudFront, S3',
-        'SAM / CloudFormation, GitHub Actions CI/CD, OIDC-federated deploys',
+        'SAM, GitHub Actions, CI/CD, OIDC',
       ],
     },
   ]
@@ -351,6 +402,21 @@ function Projects() {
                   loading="lazy"
                   className="w-full rounded-lg border border-base-300"
                 />
+              )}
+              {project.images && (
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {project.images.map((img) => (
+                    <div key={img.src}>
+                      <img
+                        src={img.src}
+                        alt={img.caption}
+                        loading="lazy"
+                        className="w-full rounded-lg border border-base-300"
+                      />
+                      <p className="mt-1.5 text-center text-xs text-base-content/60">{img.caption}</p>
+                    </div>
+                  ))}
+                </div>
               )}
               <p className="text-sm leading-relaxed text-base-content/70">{project.description}</p>
               <div className="mt-1">
@@ -397,13 +463,13 @@ function Projects() {
 
 function Skills() {
   const skills: Record<string, string[]> = {
-    Languages: ['C++', 'C', 'C#', 'Java', 'Python', 'TypeScript', 'JavaScript', 'SQL', 'ARM Assembly', 'Verilog'],
+    Languages: ['C++', 'C', 'C#', 'Java', 'Python', 'TypeScript', 'JavaScript', 'SQL', 'ARM Assembly', 'SystemVerilog', 'RISC-V Assembly', 'Rust'],
     Frontend: ['React', 'Redux Toolkit', 'Vite', 'HTML', 'CSS'],
     'Backend & Data': ['Node.js', 'Express', 'REST APIs', 'PostgreSQL', 'DynamoDB'],
-    'Robotics & ML': ['ROS 2', 'PyTorch', 'OpenCV', 'LiDAR'],
-    'Testing & QA': ['Playwright', 'NUnit', 'Vitest', 'BrowserStack', 'Postman', 'Apidog'],
+    'Robotics & ML': ['ROS 2', 'PyTorch', 'LightGBM', 'OpenCV', 'LiDAR'],
+    'Testing & QA': ['Playwright', 'NUnit', 'Vitest', 'k6', 'BrowserStack', 'Postman', 'Apidog'],
     'Cloud & DevOps': ['AWS Lambda', 'API Gateway', 'S3', 'CloudFront', 'GitHub Actions', 'CI/CD', 'Docker'],
-    'Embedded & Hardware': ['Arduino', 'ModelSim', 'Quartus', 'GDB', 'Wireshark'],
+    'Embedded & Hardware': ['FPGA', 'RISC-V', 'Arduino', 'ModelSim', 'Quartus', 'GDB', 'Wireshark'],
     'Tools & Platforms': ['Git', 'Linux', 'NVIDIA Jetson', 'Figma', 'LaTeX'],
   }
 
@@ -445,14 +511,15 @@ function Athletics() {
       title: 'Tennis',
       subtitle: "Team Captain, UBC Men's Varsity Tennis Team",
       description:
-        "I've been playing competitive tennis since I was nine years old, training almost every day for close to 12 years now. The sport has shaped how I approach problems: singles taught me to think independently, adapt on the fly, and stay composed under pressure, while doubles and team competition taught me how to communicate, trust my teammates, and put the group's success ahead of my own. I currently compete at the varsity level for UBC in both singles and doubles, and serve as Team Captain of the men's team. I joined the team in my first year of university back in 2023, and it's become like a family to me.",
+        "I am the current team captain for the UBC Men's Tennis team and compete in both singles and doubles. I have been a competitive tennis player since I was 9 years old - training almost every day for close to 12 years now. This sport has changed my life in so many ways, but most importantly it has shaped how I approach problem solving. Singles has taught me how to adapt, think independently, and stay composed - while doubles has taught me how to communicate, trust my teammates, and put the group's success above all else.",
       achievements: [
         '2026 USPORTS National Champion',
-        '2025 USPORTS National Runner-up',
         '2024 USPORTS National Champion',
         'Former top-9 ranked player in Canada',
-        'Current 10 UTR',
-        'High-school team captain (2021–2023), leading the team to two provincial championships',
+        'Current 10 UTR & 15.9 WTN',
+        'High-school team captain (2021–2023)',
+        '2023 AAA BC Provincial Champion',
+        '2022 AA BC Provincial Champion',
       ],
       photos: [
         { src: tennis2026, caption: 'U SPORTS national champions (2026)', w: 1600, h: 2000 },
@@ -463,12 +530,13 @@ function Athletics() {
       title: 'Valorant',
       subtitle: 'Team Captain, In-Game Leader (IGL)',
       description:
-        "I've been gaming for about 8 years now, and it's taught me more than most people would expect. Competitive gaming demands fast decision-making under pressure, clear communication with teammates, and the ability to adapt strategies in real time. As a team shot-caller, I learned how to lead through chaos, keep people focused, and make split-second calls that the whole team commits to. Some of my closest friendships came from gaming, and those relationships carried over into real competitive success. I captained my high-school Valorant team for two years, leading the squad to back-to-back provincial championships and earning tournament MVP in both. More recently, I teamed up with some friends to enter a UBC tournament where we took first place, beating the varsity UBC team in the process.",
+        "I have been playing video games my whole life. Just like tennis, it has taught me more than most people would expect. Competitive gaming demands fast decision-making under pressure, clear communication, and the ability to adapt. As a team captain, I learned how to lead through chaos, keep teammates focused, and make split-second calls. I captained my high-school Valorant team for 2 years, leading to squad to back-to-back provincial titles and earning MVP in both. ",
       achievements: [
-        'High-school team captain (2021–2023), two provincial championships with tournament MVP in both',
+        'High-school team captain (2021–2023)',
+        '2023 SEABC Provincial Champion (MVP)',
+        '2023 NEVL Provincial Champion (MVP)',
         '2026 UBC tournament champion',
-        'Currently a top-1000 player in North America',
-        'Team shot-caller and in-game strategist',
+        'Former top-600 player in North America',
       ],
       photos: [
         { src: valorant2023, caption: 'First provincial title with my high-school team (2023)', w: 1600, h: 1200 },
@@ -478,13 +546,13 @@ function Athletics() {
       title: 'Speedcubing',
       subtitle: 'WCA Competitor',
       description:
-        "I picked up a Rubik's Cube about 9 years ago and pretty quickly fell down the rabbit hole. There's something addictive about chasing a faster solve, and a lot of the skills overlap with what tennis drilled into me: pattern recognition, staying composed when it counts, and putting in the reps until something clicks. Every solve is its own little puzzle where you have to read the state, pick a plan, and commit without second-guessing yourself. I've competed in seven official WCA competitions over the years, and performing under tournament conditions with a judge watching and a timer running is its own kind of pressure that I've come to enjoy.",
+        "I first picked up a Rubik's Cube about 10 years ago and quickly fell down the rabbit hole. Competitive speedcubing has taught me pattern recognition, staying composed, and memorization skills. Every solve is its own little puzzle where you have to recognize the state, choose a plan, and commit to it. I've competed in 7 official WCA competitions over the years and have a best of 8.16 seconds.",
       achievements: [
-        'Consistent sub-10 solver; personal best of approximately 4 seconds',
-        'WCA official personal best: 8.16s single, 10.33s average (3x3)',
-        'WCA 2x2 personal best: 1.93s single, 3.67s average',
+        'Sub-10 solver - best of 4.xx',
+        'WCA 3x3 PB: 8.16s single, 10.33s average',
+        'WCA 2x2 PB: 1.93s single, 3.67s average',
         '7 official WCA competitions, 135 completed solves',
-        'Nationally ranked in Canada across multiple events',
+        'Former top 6 in BC for 3x3'
       ],
       link: { href: 'https://www.worldcubeassociation.org/persons/2018JIMC01', label: 'WCA profile' },
       photos: [
@@ -556,11 +624,10 @@ function Interests() {
             <p className="text-sm leading-relaxed text-base-content/80">
               I'm a big fan of action, comedy, anime, and K-dramas. Silicon Valley is my all-time
               favourite. I first watched it in grade 10 and it's a big reason I got into software
-              engineering (yes, the Pied Piper theme of this whole site is on purpose). I've rewatched
-              it probably 15 times since. Beyond that, some of my go-to shows are Umbrella Academy,
-              Brooklyn Nine-Nine, Blue Lock, While You Were Sleeping, and Hawkeye. For movies, I'll
-              watch anything Spider-Man (especially the Spider-Verse films), and some of my favourites
-              are Obsession, Memento, 21, and Endgame.
+              engineering. I've rewatched the whole show probably over 15 times. Besides that, my 
+              favourite movies have to be the Spider-Man films. They really hit home for me as someone
+              who has spent their whole life living as 2 people: a student and an athlete. Peter, although fake,
+              is someone who I really look up to and strive to be like every day.
             </p>
           </div>
         </article>
@@ -568,31 +635,13 @@ function Interests() {
           <div className="card-body gap-3 p-6">
             <h3 className="text-lg font-semibold">What I Cook</h3>
             <p className="text-sm leading-relaxed text-base-content/80">
-              I spend a lot of time in the kitchen and tend to gravitate toward Asian cooking,
-              especially Chinese rice dishes with braised meats. I also love making Italian cream sauce
-              pastas, and on the comfort food side I'm usually making things like beef stew, pan-fried
-              chicken, or a good steak with a pan sauce. Cooking is one of those things I do for comfort
-              rather than survival, and it calms me down.
+              As a half Chinese, half Korean, I spend a lot of time in the kitchen and tend to gravitate toward Asian cuisine.
+              Cooking is one of those things I do for comfort rather than survival, and it calms me down. You can often
+              find me cooking braised meats, or variations of (air) fried chicken. I absolutely love baking too,
+              but I try not to because I would eat everything I make.
             </p>
           </div>
         </article>
-      </div>
-
-      {/* Homage: the original "Pied Piper" the show's company is named after. */}
-      <div className="card mt-5 border border-base-300 bg-base-100">
-        <div className="card-body gap-3 p-6">
-          <p className="text-sm text-base-content/70">
-            Homage to the 'Theme Song' of the show: The Pied Piper by Crispian St. Peters (1966).
-          </p>
-          <iframe
-            title="The Pied Piper by Crispian St. Peters"
-            src="https://open.spotify.com/embed/track/6H38Ea6neHRvw43XMn6MmM"
-            className="w-full rounded-lg border-0"
-            height="152"
-            loading="lazy"
-            allow="encrypted-media; clipboard-write"
-          />
-        </div>
       </div>
     </section>
   )
