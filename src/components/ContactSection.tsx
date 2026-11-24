@@ -1,6 +1,6 @@
-import SketchBorder from '../sketch/SketchBorder'
-import SketchButton from '../sketch/SketchButton'
-import Tape from '../sketch/Tape'
+import SketchBorder from './sketch/SketchBorder'
+import SketchButton from './sketch/SketchButton'
+import Tape from './sketch/Tape'
 
 const EMAIL = 'cjim02@student.ubc.ca'
 

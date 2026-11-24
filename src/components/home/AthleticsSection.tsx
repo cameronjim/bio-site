@@ -110,10 +110,14 @@ function Star() {
   )
 }
 
-function AthleticsSection() {
+interface AthleticsSectionProps {
+  level?: 1 | 2
+}
+
+function AthleticsSection({ level = 2 }: AthleticsSectionProps) {
   return (
     <section id="athletics" className="mx-auto max-w-5xl px-6 pb-28">
-      <SectionHeading note="off the keyboard">Athletics</SectionHeading>
+      <SectionHeading note="off the keyboard" level={level}>Athletics</SectionHeading>
       <div className="flex flex-col gap-24">
         {SPORTS.map((sport, i) => (
           <article

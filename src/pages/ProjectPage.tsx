@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { PROJECTS, findProject } from '../config/projects'
 import SiteLayout from '../components/sketch/SiteLayout'
@@ -16,14 +15,9 @@ function ProjectPage() {
   const { slug } = useParams<{ slug: string }>()
   const project = findProject(slug)
 
-  useEffect(() => {
-    window.scrollTo(0, 0)
-    document.title = project ? `${project.title} | Cameron Jim` : 'Cameron Jim'
-  }, [project])
-
   if (!project) {
     return (
-      <SiteLayout>
+      <SiteLayout title="Not found">
         <section className="mx-auto max-w-3xl px-6 py-24 text-center">
           <p className="font-scrawl text-3xl text-primary">hmm…</p>
           <h1 className="font-hand text-4xl font-extrabold">That project isn&apos;t here</h1>
@@ -39,9 +33,9 @@ function ProjectPage() {
   const next = PROJECTS.slice(index + 1).concat(PROJECTS.slice(0, index)).find((p) => !p.draft)
 
   return (
-    <SiteLayout>
+    <SiteLayout title={project.title}>
       <article className="mx-auto max-w-4xl px-6 pt-10 pb-24">
-        <Link to="/#projects" className={`font-hand text-base-content/70 ${LINK_CLASS}`}>
+        <Link to="/projects" className={`font-hand text-base-content/70 ${LINK_CLASS}`}>
           ← all projects
         </Link>
         <header className="mt-6 flex items-end justify-between gap-6">

@@ -1,6 +1,9 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
+import ProjectsPage from './pages/ProjectsPage'
 import ProjectPage from './pages/ProjectPage'
+import ExperiencePage from './pages/ExperiencePage'
+import AboutPage from './pages/AboutPage'
 import Play from './pages/Play'
 import TokenGate from './pages/TokenGate'
 import Expired from './pages/Expired'
@@ -11,8 +14,10 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/projects" element={<Navigate to="/" replace />} />
+      <Route path="/projects" element={<ProjectsPage />} />
       <Route path="/projects/:slug" element={<ProjectPage />} />
+      <Route path="/experience" element={<ExperiencePage />} />
+      <Route path="/about" element={<AboutPage />} />
       <Route path="/play" element={<Play />} />
       {/* Dev-only: the previous design, kept for side-by-side comparison. */}
       {import.meta.env.DEV && <Route path="/preview" element={<Portfolio />} />}

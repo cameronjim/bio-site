@@ -1,41 +1,21 @@
-import { useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
 import SiteLayout from '../components/sketch/SiteLayout'
 import Hero from '../components/home/Hero'
 import ProjectsSection from '../components/home/ProjectsSection'
 import PlaySection from '../components/home/PlaySection'
-import ExperienceSection from '../components/home/ExperienceSection'
-import SkillsSection from '../components/home/SkillsSection'
-import AthleticsSection from '../components/home/AthleticsSection'
-import InterestsSection from '../components/home/InterestsSection'
-import ContactSection from '../components/home/ContactSection'
+import ExploreSection from '../components/home/ExploreSection'
 
-// Client-side navigation to "/#projects" (e.g. "← all projects") doesn't scroll
-// by itself, so jump to the hash target once the page has rendered.
-function useScrollToHash() {
-  const { hash } = useLocation()
+const FEATURED_SLUGS = ['race-car', 'gameboy-emulator', 'nba-iq']
 
-  useEffect(() => {
-    if (!hash) return
-    document.getElementById(hash.slice(1))?.scrollIntoView()
-  }, [hash])
-}
-
-// The public home page. Token links (/t/:token, /:token) render this same page
-// after validation, so every visitor sees one site.
+// The public home page: who I am, three projects, the Game Boy, and a card for
+// each other page. Token links (/t/:token, /:token) render this same page after
+// validation, so every visitor sees one site.
 function Home() {
-  useScrollToHash()
-
   return (
-    <SiteLayout home>
+    <SiteLayout>
       <Hero />
-      <ProjectsSection />
+      <ProjectsSection slugs={FEATURED_SLUGS} note="a few favourites" />
       <PlaySection />
-      <ExperienceSection />
-      <SkillsSection />
-      <AthleticsSection />
-      <InterestsSection />
-      <ContactSection />
+      <ExploreSection />
     </SiteLayout>
   )
 }

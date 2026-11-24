@@ -64,12 +64,16 @@ const JOBS: Job[] = [
   },
 ]
 
+interface ExperienceSectionProps {
+  level?: 1 | 2
+}
+
 // A hand-drawn timeline: dates in red pencil in the margin, a wavering pen
 // line down the middle and a circled dot for each job.
-function ExperienceSection() {
+function ExperienceSection({ level = 2 }: ExperienceSectionProps) {
   return (
     <section id="experience" className="mx-auto max-w-5xl px-6 pb-28">
-      <SectionHeading note="where I've worked">Experience</SectionHeading>
+      <SectionHeading note="where I've worked" level={level}>Experience</SectionHeading>
       <ol className="relative">
         <svg
           className="absolute top-2 bottom-2 left-[7px] h-[calc(100%-1rem)] w-3 text-base-content/40 md:left-[167px]"

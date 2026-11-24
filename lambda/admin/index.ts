@@ -21,7 +21,7 @@ const MAX_CAMPAIGN_LENGTH = 200;
 // Slugs that collide with client routes (src/App.tsx) or the static-file
 // namespace would be shadowed and never reach the token gate, so reject them at
 // creation. Keep in sync with the routes in App.tsx.
-const RESERVED_SLUGS = new Set(['admin', 'expired', 'preview', 't', 'api', 'assets', 'projects', 'play']);
+const RESERVED_SLUGS = new Set(['admin', 'expired', 'preview', 't', 'api', 'assets', 'projects', 'play', 'experience', 'about']);
 
 // CORS: pin to the admin origin. A non-wildcard default keeps a missing env var
 // from ever opening the admin API to every site (never use '*' on an
