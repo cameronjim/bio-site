@@ -17,7 +17,7 @@ const PAGES: PageCard[] = [
   {
     to: '/projects',
     title: 'Projects',
-    teaser: 'Emulators, a CPU, a shell, a race car, and the demo videos.',
+    teaser: 'A self-driving race car, a 3D game, an emulator, and the demo videos.',
     Art: CubeDoodle,
   },
   {

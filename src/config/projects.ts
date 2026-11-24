@@ -64,9 +64,9 @@ export const PROJECTS: Project[] = [
   {
     slug: 'hawkeye',
     title: 'Hawkeye',
-    note: 'new!',
-    summary: 'A game I built. Demo video and full write-up coming soon.',
-    writeup: ['The full write-up for Hawkeye is on its way, along with a demo video.'],
+    note: '3D game',
+    summary: 'A 3D game I built. Demo video and full write-up coming soon.',
+    writeup: ['The full write-up for Hawkeye, my 3D game, is on its way, along with a demo video.'],
     tags: [],
     stack: [],
     art: 'eye',
