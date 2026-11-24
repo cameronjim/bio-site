@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { validateToken } from '../config/api'
-import Portfolio from '../components/Portfolio'
+import Home from './Home'
 
 type LoadingState = 'loading' | 'valid' | 'invalid'
 
@@ -56,7 +56,7 @@ function TokenGate() {
     )
   }
 
-  return <Portfolio />
+  return <Home />
 }
 
 export default TokenGate
