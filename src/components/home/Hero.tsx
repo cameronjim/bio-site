@@ -13,7 +13,7 @@ function HeroCollage() {
     <div className="relative mx-auto h-[440px] w-full max-w-md text-base-content sm:h-[480px]">
       <GameBoyDoodle draw="load" className="absolute top-2 left-0 w-24 -rotate-6 sm:w-28" />
       <p className="absolute top-[184px] left-0 w-28 -rotate-3 font-scrawl text-xl leading-tight text-primary sm:top-[220px] sm:w-36">
-        I wrote an emulator for this in C/C++
+        I wrote an emulator for this (and four games for it)
       </p>
       <HandArrow
         className="draw-on absolute top-[150px] left-[88px] w-12 text-primary [--draw-delay:0.9s] sm:top-[170px] sm:left-[104px]"
@@ -36,7 +36,7 @@ function HeroCollage() {
         className="absolute bottom-6 left-0 w-56 [--draw-delay:0.3s] sm:w-72"
       />
       <p className="absolute right-0 bottom-[140px] w-28 rotate-3 font-scrawl text-xl leading-tight text-primary sm:bottom-[84px] sm:w-36">
-        1/10 scale, and it drives itself
+        I        an RC truck I&apos;m teaching to drive itselfapos;m teaching this to drive itself
       </p>
       <HandArrow
         className="draw-on absolute right-[128px] bottom-[124px] hidden w-11 text-primary [--draw-delay:1.2s] sm:block"
@@ -78,12 +78,15 @@ function Hero() {
           </span>
         </h1>
         <p className="mt-6 font-hand text-xl text-base-content/80">
-          computer engineer · student-athlete · builds things that move
+          computer engineering at UBC · varsity tennis captain
         </p>
         <p className="mt-5 max-w-xl text-lg leading-relaxed text-base-content/75">
-          Fourth-year Computer Engineering at UBC and captain of the varsity tennis team. By day
-          I&apos;m a QA software engineer on co-op; the rest of the time I&apos;m writing a Game Boy
-          Color emulator, making games for it, and teaching a 1/10-scale race car to drive itself.
+          I&apos;m a fourth-year Computer Engineering student at UBC and the captain of the
+          men&apos;s varsity tennis team. Right now I&apos;m on co-op as a QA Software Engineer at
+          the BC Maritime Employers Association. Outside of school and work I build side projects
+          to learn new things, and I am very passionate about both game development and robotics.
+          At the moment that means turning an RC truck into a self-driving car and making a 3D
+          action game in Unreal Engine.
         </p>
         <div className="mt-8 flex flex-wrap items-center gap-4">
           <SketchButton href="#contact" primary>

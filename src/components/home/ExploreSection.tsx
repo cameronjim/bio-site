@@ -17,19 +17,19 @@ const PAGES: PageCard[] = [
   {
     to: '/projects',
     title: 'Projects',
-    teaser: 'A self-driving race car, a 3D game, an emulator, and the demo videos.',
+    teaser: 'A self-driving RC truck, a 3D game, an emulator, a CPU, and a few more.',
     Art: CubeDoodle,
   },
   {
     to: '/experience',
     title: 'Experience',
-    teaser: 'Co-ops, a startup I co-founded, and my toolbox.',
+    teaser: 'My co-ops, the startup I co-founded, and the tools I use.',
     Art: TerminalDoodle,
   },
   {
     to: '/about',
     title: 'About',
-    teaser: 'Two national titles, speedcubing, and what I cook.',
+    teaser: 'Two national titles, Valorant, speedcubing, and what I cook.',
     Art: TennisBallDoodle,
   },
 ]

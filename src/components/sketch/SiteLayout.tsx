@@ -158,7 +158,7 @@ function SiteLayout({ title, children }: SiteLayoutProps) {
       <footer className="mx-auto w-full max-w-5xl px-6 pt-4 pb-10">
         <PenRule className="mb-6 text-base-content/40" />
         <div className="flex flex-col items-center justify-between gap-3 font-hand text-sm text-base-content/60 sm:flex-row">
-          <p>© {new Date().getFullYear()} Cameron Jim · drawn by hand, in code</p>
+          <p>© {new Date().getFullYear()} Cameron Jim</p>
           <div className="flex gap-5">
             <a
               href="https://github.com/cameronjim"

@@ -16,8 +16,8 @@ function ContactSection() {
           Let&apos;s talk
         </h2>
         <p className="relative mx-auto mt-5 max-w-lg text-lg leading-relaxed text-base-content/75">
-          I&apos;m looking for co-op and internship roles for 2027–2028, especially in game
-          development and robotics. Always happy to chat.
+          I&apos;m looking for co-op and internship opportunities for 2027–2028, especially in
+          game development and robotics. I&apos;m always open for a chat!
         </p>
         <a
           href={`mailto:${EMAIL}`}

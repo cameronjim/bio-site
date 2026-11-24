@@ -47,8 +47,8 @@ function PlaySection() {
             Play my Game Boy games
           </h2>
           <p className="mt-5 max-w-lg text-lg leading-relaxed text-base-content/75">
-            The emulator runs right in your browser, loaded with games I wrote from scratch in C
-            with gbdk-2020. No download, just a keyboard (or a controller).
+            My emulator runs in the browser too, so you can play the four games I wrote for it
+            without downloading anything. A keyboard works, and so does a controller.
           </p>
           <p className="mt-3 font-hand text-base-content/60">
             {SCREENSHOTS[slide]?.caption ?? ''}
