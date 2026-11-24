@@ -125,9 +125,8 @@ function Play() {
           </div>
           <div>
             <p className="mb-6 max-w-md text-lg leading-relaxed text-base-content/75">
-              This is my emulator, running right in your browser. The four games are ones I wrote
-              in C with gbdk-2020. Pick one below, then use your keyboard (or plug in a
-              controller).
+              This is my Game Boy emulator running right in your browser. There are 4 games to choose
+              from, written in C. Controls are down below. Enjoy!
             </p>
             <ul className="grid grid-cols-2 gap-4">
               {PLAY_GAMES.map((game, i) => {
