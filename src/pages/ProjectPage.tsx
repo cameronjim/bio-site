@@ -110,7 +110,7 @@ function ProjectPage() {
             ))}
           </div>
           {project.stack.length > 0 && (
-            <aside className="relative rotate-1 bg-secondary/25 p-6 shadow-sm">
+            <aside className="relative rotate-1 self-start bg-secondary/25 p-6 shadow-sm">
               <Tape className="-top-3 left-1/2 w-16 -translate-x-1/2" />
               <h2 className="font-hand text-xl font-extrabold">Built with</h2>
               <ul className="mt-3 space-y-2 font-hand text-base-content/80">

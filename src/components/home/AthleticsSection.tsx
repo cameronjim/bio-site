@@ -26,13 +26,13 @@ const SPORTS: Sport[] = [
     title: 'Tennis',
     role: "Team captain, UBC men's varsity tennis",
     story:
-      "I've played competitive tennis since I was 9, training almost every day for close to 12 years. Singles taught me to adapt, think independently and stay composed; doubles taught me to communicate, trust my teammates and put the group first.",
+      "I've played competitive tennis since I was 9, training almost every day for close to 12 years. I'm proud to be the team captain for the UBC Men's Tennis Team. We have formed a dynasty since I have been on the team, winning national titles in 2/3 years (2nd place 1/3 years). This team feels like a family and has taught me beyond the court: how to lead, how to communicate, and how to collaborate with a team with all different personalities and backgrounds.",
     wins: [
       '2026 U SPORTS national champion',
       '2024 U SPORTS national champion',
-      'Former top-9 ranked player in Canada',
-      'Current 10 UTR · 15.9 WTN',
-      '2023 AAA & 2022 AA BC provincial champion',
+      'Former 9th ranked player in Canada',
+      'Current 10 UTR · 15 WTN',
+      '2023 AAA & 2022 AA BC provincial high school champion',
     ],
     photos: [
       { src: tennis2026, caption: 'national champs, 2026', w: 1600, h: 2000 },
@@ -43,12 +43,12 @@ const SPORTS: Sport[] = [
     title: 'Valorant',
     role: 'Team captain, in-game leader',
     story:
-      'Competitive gaming demands fast decisions under pressure, clear communication and the ability to adapt. I captained my high-school team for two years, leading the squad to back-to-back provincial titles and earning MVP in both.',
+      'I captained my high-school team for two years, leading the team to back-to-back provincial titles and earning MVP in both. I would say these teammates are some of the closest friends I have to this day.',
     wins: [
       '2023 SEABC provincial champion (MVP)',
       '2023 NEVL provincial champion (MVP)',
       '2026 UBC tournament champion',
-      'Former top-600 player in North America',
+      'Top-600 player in North America',
     ],
     photos: [{ src: valorant2023, caption: 'first provincial title, 2023', w: 1600, h: 1200 }],
   },
@@ -56,7 +56,7 @@ const SPORTS: Sport[] = [
     title: 'Speedcubing',
     role: 'WCA competitor',
     story:
-      "I picked up a Rubik's Cube about 10 years ago and fell down the rabbit hole. Every solve is a little puzzle: recognize the state, choose a plan, commit. Seven official WCA competitions so far.",
+      "I picked up a Rubik's Cube about 10 years ago and fell down the rabbit hole. I've competed in seven official WCA competitions so far, with a high of 6th place in BC, and have competed against world champions.",
     wins: [
       'WCA 3x3: 8.16s single, 10.33s average',
       'WCA 2x2: 1.93s single, 3.67s average',

@@ -4,9 +4,6 @@ import RaceCarDoodle from './doodles/RaceCarDoodle'
 import EyeDoodle from './doodles/EyeDoodle'
 import GameBoyDoodle from './doodles/GameBoyDoodle'
 import BasketballDoodle from './doodles/BasketballDoodle'
-import ChipDoodle from './doodles/ChipDoodle'
-import TerminalDoodle from './doodles/TerminalDoodle'
-import CubeDoodle from './doodles/CubeDoodle'
 import BrowserDoodle from './doodles/BrowserDoodle'
 
 const ART: Record<ProjectArtKind, (props: DoodleProps) => React.ReactElement> = {
@@ -14,9 +11,6 @@ const ART: Record<ProjectArtKind, (props: DoodleProps) => React.ReactElement> = 
   eye: EyeDoodle,
   gameboy: GameBoyDoodle,
   basketball: BasketballDoodle,
-  chip: ChipDoodle,
-  terminal: TerminalDoodle,
-  cube: CubeDoodle,
   browser: BrowserDoodle,
 }
 
