@@ -104,7 +104,7 @@ function Hero() {
               github
             </a>
             <a
-              href="https://www.linkedin.com/in/cameron-jim-037b992a6/"
+              href="https://www.linkedin.com/in/cameron-jim/"
               target="_blank"
               rel="noopener noreferrer"
               className={LINK_CLASS}

@@ -45,27 +45,6 @@ const JOBS: Job[] = [
       'Migrated the front-end build to CI/CD with automatic PR builds, preview deploys, and coverage checks',
     ],
   },
-  {
-    company: 'Turing AI',
-    location: 'Remote',
-    role: 'STEM Annotator Internship (Google)',
-    period: 'Dec 2024 – Jan 2025',
-    stack: [],
-    highlights: [
-      'Led CS and Physics teams writing and verifying AP-level problems for training and validation datasets',
-      'Benchmarked AI responses across models with rubric-based comparisons, reporting failure modes to guide iteration',
-    ],
-  },
-  {
-    company: 'Richmond Country Club',
-    location: 'Richmond, BC',
-    role: 'Tennis Instructor (Part-time)',
-    period: 'Nov 2020 – Jun 2023',
-    stack: [],
-    highlights: [
-      'Coached beginner and intermediate students aged 4–13 on technique, fundamentals, and match play',
-    ],
-  },
 ]
 
 interface ExperienceSectionProps {

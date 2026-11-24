@@ -29,7 +29,7 @@ function ContactSection() {
           <SketchButton href={`mailto:${EMAIL}`} primary>
             email me
           </SketchButton>
-          <SketchButton href="https://www.linkedin.com/in/cameron-jim-037b992a6/" external>
+          <SketchButton href="https://www.linkedin.com/in/cameron-jim/" external>
             linkedin
           </SketchButton>
           <SketchButton href="https://github.com/cameronjim" external>
