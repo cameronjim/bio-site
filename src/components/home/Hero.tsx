@@ -36,7 +36,7 @@ function HeroCollage() {
         className="absolute bottom-6 left-0 w-56 [--draw-delay:0.3s] sm:w-72"
       />
       <p className="absolute right-0 bottom-[140px] w-28 rotate-3 font-scrawl text-xl leading-tight text-primary sm:bottom-[84px] sm:w-36">
-        I        an RC truck I&apos;m teaching to drive itselfapos;m teaching this to drive itself
+        I&apos;m teaching this to drive itself
       </p>
       <HandArrow
         className="draw-on absolute right-[128px] bottom-[124px] hidden w-11 text-primary [--draw-delay:1.2s] sm:block"
