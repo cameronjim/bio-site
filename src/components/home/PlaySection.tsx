@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { PLAY_URL, findProject } from '../../config/projects'
 import GameBoyDoodle from '../doodles/GameBoyDoodle'
 import SketchButton from '../sketch/SketchButton'
@@ -23,8 +24,8 @@ function PlaySection() {
   return (
     <section id="play" className="mx-auto max-w-5xl px-6 pb-28">
       <div className="grid items-center gap-12 md:grid-cols-[1fr_1.2fr]">
-        <a
-          href={PLAY_URL}
+        <Link
+          to={PLAY_URL}
           className="group relative mx-auto block w-56 -rotate-3 transition-transform hover:rotate-0 sm:w-64"
           aria-label="Play the Game Boy games"
         >
@@ -40,7 +41,7 @@ function PlaySection() {
             ))}
           </span>
           <GameBoyDoodle className="relative w-full text-base-content" />
-        </a>
+        </Link>
         <div>
           <p className="font-scrawl text-2xl text-primary">press start</p>
           <h2 className="font-hand text-4xl font-extrabold tracking-tight sm:text-5xl">
@@ -54,14 +55,14 @@ function PlaySection() {
           </p>
           <div className="relative mt-8 flex items-center gap-4">
             <SketchButton href={PLAY_URL} primary>
-              play now ↗
+              play now
             </SketchButton>
             <HandArrow
               className="draw-on w-10 -scale-x-100 text-primary"
               d="M90 70 C 72 40, 50 30, 14 34"
               head="M28 20 L 12 34 L 28 48"
             />
-            <span className="-rotate-3 font-scrawl text-xl text-primary">gb.cameronjim.com</span>
+            <span className="-rotate-3 font-scrawl text-xl text-primary">no download needed</span>
           </div>
         </div>
       </div>

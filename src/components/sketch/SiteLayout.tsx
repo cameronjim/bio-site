@@ -22,6 +22,11 @@ function tabClass({ isActive }: { isActive: boolean }) {
     : LINK_CLASS
 }
 
+// "play" is always red; it also keeps the pen underline while you're on /play.
+function playClass({ isActive }: { isActive: boolean }) {
+  return `text-primary ${tabClass({ isActive })}`
+}
+
 // daisyUI dropdowns stay open while focus is inside them, so drop focus after
 // a tap to close the mobile menu.
 function closeMenu() {
@@ -103,9 +108,9 @@ function SiteLayout({ title, children }: SiteLayoutProps) {
                 </li>
               ))}
               <li>
-                <a href={PLAY_URL} className={`text-primary ${LINK_CLASS}`}>
-                  play ↗
-                </a>
+                <NavLink to={PLAY_URL} className={playClass}>
+                  play
+                </NavLink>
               </li>
             </ul>
             <span
@@ -143,9 +148,9 @@ function SiteLayout({ title, children }: SiteLayoutProps) {
                   </li>
                 ))}
                 <li className="relative">
-                  <a href={PLAY_URL} className={`text-primary ${LINK_CLASS}`}>
-                    play ↗
-                  </a>
+                  <NavLink to={PLAY_URL} className={playClass} onClick={closeMenu}>
+                    play
+                  </NavLink>
                 </li>
               </ul>
             </div>

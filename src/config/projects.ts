@@ -42,7 +42,20 @@ export interface Project {
   draft?: boolean
 }
 
-export const PLAY_URL = 'https://gb.cameronjim.com'
+// The emulator lives at /play (the build is in public/play/, see scripts/update-emulator.sh).
+export const PLAY_URL = '/play'
+
+export interface PlayGame {
+  rom: string
+  title: string
+}
+
+export const PLAY_GAMES: PlayGame[] = [
+  { rom: 'mario.gbc', title: 'Super Mario Bros' },
+  { rom: 'tetris.gb', title: 'Tetris' },
+  { rom: 'flappy.gb', title: 'Flappy Bird' },
+  { rom: 'crossy.gb', title: 'Crossy Road' },
+]
 
 export const PROJECTS: Project[] = [
   {
@@ -101,7 +114,7 @@ export const PROJECTS: Project[] = [
     writeup: [
       'I wrote a Game Boy Color emulator from scratch in C++, including the CPU, memory, graphics, timers, audio, and support for MBC1, MBC3, and MBC5 cartridges. It runs on Windows, Mac, and Linux, and it plays both original Game Boy and Game Boy Color games. I check it against test ROMs from the Mooneye and blargg test suites.',
       'To have something to play on it, I also reverse engineered four games and rewrote them from scratch in C with gbdk-2020: Super Mario Bros, Tetris, Flappy Bird, and Crossy Road. Tetris gives each piece its own colour and saves your best score, and Super Mario Bros is a rebuild of World 1 with four levels, powerups, and a boss fight.',
-      "The same emulator runs in the browser too. Every push to main builds it with Emscripten and publishes it, which is what you're playing at gb.cameronjim.com. Saves are kept in your browser, so they survive a reload.",
+      "The same emulator runs in the browser too. Every push to main builds it with Emscripten and publishes it, which is what you can play right here on my site. Saves are kept in your browser, so they survive a reload.",
     ],
     tags: ['C++', 'C', 'SDL2', 'gbdk-2020', 'Emscripten'],
     stack: ['C++, CMake, SDL2', 'C and gbdk-2020 for the games', 'Emscripten for the browser build'],
