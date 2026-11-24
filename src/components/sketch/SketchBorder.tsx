@@ -26,23 +26,30 @@ function SketchBorder({
 }: SketchBorderProps) {
   const other = variant === 0 ? 1 : 0
   return (
-    <svg
-      className={`pointer-events-none absolute inset-0 h-full w-full overflow-visible ${className}`}
-      viewBox="0 0 100 100"
-      preserveAspectRatio="none"
-      fill="none"
-      stroke="currentColor"
-      aria-hidden="true"
-    >
-      {filled && <path d={BOX_FILL} className={fillClass} stroke="none" />}
-      <path d={BOX_STROKES[variant]} strokeWidth="1.8" vectorEffect="non-scaling-stroke" />
-      <path
-        d={BOX_STROKES[other]}
-        strokeWidth="1"
-        opacity="0.45"
-        vectorEffect="non-scaling-stroke"
+    <>
+      {/* game mode swaps the pen box for a pixel frame (see .pixel-box in index.css) */}
+      <span
+        className={`pixel-only pixel-box ${filled ? 'bg-base-100' : ''} ${className}`}
+        aria-hidden="true"
       />
-    </svg>
+      <svg
+        className={`sketch-only pointer-events-none absolute inset-0 h-full w-full overflow-visible ${className}`}
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        fill="none"
+        stroke="currentColor"
+        aria-hidden="true"
+      >
+        {filled && <path d={BOX_FILL} className={fillClass} stroke="none" />}
+        <path d={BOX_STROKES[variant]} strokeWidth="1.8" vectorEffect="non-scaling-stroke" />
+        <path
+          d={BOX_STROKES[other]}
+          strokeWidth="1"
+          opacity="0.45"
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
+    </>
   )
 }
 

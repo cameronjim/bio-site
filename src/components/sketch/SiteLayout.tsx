@@ -1,9 +1,10 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import SketchFilters from './SketchFilters'
 import SketchBorder from './SketchBorder'
 import ContactSection from '../ContactSection'
 import { PLAY_URL } from '../../config/projects'
+import { useSiteMode, type SiteMode } from '../../hooks/useSiteMode'
 
 const NAV_TABS = [
   { to: '/projects', label: 'projects' },
@@ -14,6 +15,8 @@ const NAV_TABS = [
 const SITE_TITLE = 'Cameron Jim'
 
 const LINK_CLASS = 'decoration-primary decoration-wavy underline-offset-4 hover:underline'
+
+const BOOT_MS = 1800
 
 // The current tab keeps its pen underline; the rest only show it on hover.
 function tabClass({ isActive }: { isActive: boolean }) {
@@ -54,22 +57,70 @@ interface PenRuleProps {
 // A long, slightly wavering pen line used under the header and above the footer.
 function PenRule({ className = '' }: PenRuleProps) {
   return (
-    <svg
-      className={`pointer-events-none h-2 w-full ${className}`}
-      viewBox="0 0 400 8"
-      preserveAspectRatio="none"
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
+    <>
+      <div className={`pixel-only h-1 w-full bg-current ${className}`} aria-hidden="true" />
+      <svg
+        className={`sketch-only pointer-events-none h-2 w-full ${className}`}
+        viewBox="0 0 400 8"
+        preserveAspectRatio="none"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        aria-hidden="true"
+      >
+        <path
+          d="M1 4 C 60 2.6, 120 5.4, 200 3.8 S 330 2.8, 399 4.4"
+          strokeWidth="1.6"
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
+    </>
+  )
+}
+
+interface ModeSwitchProps {
+  mode: SiteMode
+  onToggle: () => void
+}
+
+// The stamp in the header that flips between the hand-drawn site and game mode.
+function ModeSwitch({ mode, onToggle }: ModeSwitchProps) {
+  const toGame = mode === 'sketch'
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      className="relative inline-flex items-center px-3 py-1 font-hand text-sm text-base-content/70 transition-transform hover:-translate-y-0.5"
+      aria-pressed={!toGame}
+      title={toGame ? 'Switch to game mode' : 'Switch back to the sketchbook'}
+    >
+      <SketchBorder variant={1} className="text-base-content/50" />
+      <span className="relative whitespace-nowrap">
+        {toGame ? 'game' : 'sketch'}
+        <span className="hidden sm:inline"> mode</span>
+        {toGame ? ' ▸' : ' ✎'}
+      </span>
+    </button>
+  )
+}
+
+// Shown for a moment when game mode turns on: the name drops down the screen and settles,
+// then the screen fades into the site, like a handheld powering on.
+function BootScreen() {
+  return (
+    <div
+      className="boot-screen fixed inset-0 z-[100] flex items-center justify-center bg-base-200"
       aria-hidden="true"
     >
-      <path
-        d="M1 4 C 60 2.6, 120 5.4, 200 3.8 S 330 2.8, 399 4.4"
-        strokeWidth="1.6"
-        vectorEffect="non-scaling-stroke"
-      />
-    </svg>
+      <p className="boot-logo font-hand text-4xl font-bold tracking-wide text-base-content sm:text-6xl">
+        cameron jim
+      </p>
+    </div>
   )
+}
+
+function prefersReducedMotion() {
+  return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
 }
 
 interface SiteLayoutProps {
@@ -82,6 +133,20 @@ interface SiteLayoutProps {
 // card and the footer.
 function SiteLayout({ title, children }: SiteLayoutProps) {
   useScrollOnNavigate()
+  const [mode, setMode] = useSiteMode()
+  const [booting, setBooting] = useState(false)
+
+  useEffect(() => {
+    if (!booting) return
+    const id = window.setTimeout(() => setBooting(false), BOOT_MS)
+    return () => window.clearTimeout(id)
+  }, [booting])
+
+  function toggleMode() {
+    const next = mode === 'sketch' ? 'gameboy' : 'sketch'
+    setMode(next)
+    if (next === 'gameboy' && !prefersReducedMotion()) setBooting(true)
+  }
 
   useEffect(() => {
     document.title = title ? `${title} | ${SITE_TITLE}` : `${SITE_TITLE} | Software Engineer`
@@ -89,16 +154,17 @@ function SiteLayout({ title, children }: SiteLayoutProps) {
 
   return (
     <div
-      data-theme="sketch"
+      data-theme={mode}
       className="sketch-paper flex min-h-screen flex-col overflow-x-clip text-base-content"
     >
       <SketchFilters />
+      {booting && <BootScreen />}
       <header className="sticky top-0 z-50 bg-base-200/90 backdrop-blur-sm">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <Link to="/" className="font-scrawl text-3xl font-bold">
+          <Link to="/" className="font-scrawl text-3xl font-bold whitespace-nowrap">
             cameron jim
           </Link>
-          <nav className="flex items-center gap-5" aria-label="Main">
+          <nav className="flex items-center gap-3 sm:gap-5" aria-label="Main">
             <ul className="hidden items-center gap-6 font-hand md:flex">
               {NAV_TABS.map((tab) => (
                 <li key={tab.to}>
@@ -113,13 +179,7 @@ function SiteLayout({ title, children }: SiteLayoutProps) {
                 </NavLink>
               </li>
             </ul>
-            <span
-              className="relative hidden items-center px-3 py-1 font-hand text-sm text-base-content/60 sm:inline-flex"
-              title="A second, game-style theme is on the way"
-            >
-              <SketchBorder variant={1} className="text-base-content/50" />
-              <span className="relative">game mode · soon</span>
-            </span>
+            <ModeSwitch mode={mode} onToggle={toggleMode} />
             <div className="dropdown dropdown-end md:hidden">
               <div
                 tabIndex={0}

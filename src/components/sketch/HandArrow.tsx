@@ -8,7 +8,7 @@ interface HandArrowProps {
 function HandArrow({ d, head, className = '' }: HandArrowProps) {
   return (
     <svg
-      className={className}
+      className={`pixelable ${className}`}
       viewBox="0 0 100 100"
       fill="none"
       stroke="currentColor"

@@ -32,7 +32,7 @@ function Doodle({
   return (
     <svg
       ref={ref}
-      className={`${drawClass} ${rough ? 'ink-rough' : ''} ${className}`}
+      className={`pixelable ${drawClass} ${rough ? 'ink-rough' : ''} ${className}`}
       viewBox={viewBox}
       fill="none"
       stroke="currentColor"

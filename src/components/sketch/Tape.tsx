@@ -6,7 +6,7 @@ interface TapeProps {
 function Tape({ className = '' }: TapeProps) {
   return (
     <span
-      className={`absolute z-10 h-6 w-20 bg-secondary/55 shadow-sm mix-blend-multiply ${className}`}
+      className={`tape absolute z-10 h-6 w-20 bg-secondary/55 shadow-sm mix-blend-multiply ${className}`}
       aria-hidden="true"
     />
   )

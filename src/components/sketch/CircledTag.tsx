@@ -9,8 +9,12 @@ interface CircledTagProps {
 function CircledTag({ label }: CircledTagProps) {
   return (
     <li className="relative px-3 py-1 font-hand text-sm">
+      <span
+        className="pixel-only pixel-box pixel-box-thin text-base-content/60"
+        aria-hidden="true"
+      />
       <svg
-        className="absolute inset-0 h-full w-full overflow-visible text-base-content/60"
+        className="sketch-only absolute inset-0 h-full w-full overflow-visible text-base-content/60"
         viewBox="0 0 100 44"
         preserveAspectRatio="none"
         fill="none"

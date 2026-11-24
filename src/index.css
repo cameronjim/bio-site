@@ -171,6 +171,179 @@
   }
 }
 
+/* ------------------------------------------------------------------------------------------
+   "Game Boy" theme — game mode. The original handheld's four greens, a dot-matrix screen
+   instead of paper, pixel fonts, pixel borders and pixelated drawings. Components render
+   both looks (.sketch-only / .pixel-only) and these rules pick one, so switching is CSS only.
+   ------------------------------------------------------------------------------------------ */
+@plugin "daisyui/theme" {
+  name: "gameboy";
+  default: false;
+  prefersdark: false;
+  color-scheme: light;
+  --color-base-100: #b5c75a;
+  --color-base-200: #9bbc0f;
+  --color-base-300: #8bac0f;
+  --color-base-content: #0f380f;
+  --color-primary: #306230;
+  --color-primary-content: #c4d88a;
+  --color-secondary: #8bac0f;
+  --color-secondary-content: #0f380f;
+  --color-accent: #306230;
+  --color-accent-content: #c4d88a;
+  --color-neutral: #0f380f;
+  --color-neutral-content: #9bbc0f;
+  --color-info: #306230;
+  --color-info-content: #c4d88a;
+  --color-success: #306230;
+  --color-success-content: #c4d88a;
+  --color-warning: #306230;
+  --color-warning-content: #c4d88a;
+  --color-error: #0f380f;
+  --color-error-content: #9bbc0f;
+  --radius-box: 0;
+  --radius-field: 0;
+  --radius-selector: 0;
+}
+
+.pixel-only {
+  display: none;
+}
+
+[data-theme='gameboy'] {
+  --font-hand: "Pixelify Sans", ui-sans-serif, sans-serif;
+  --font-scrawl: "VT323", ui-monospace, monospace;
+
+  & .sketch-only {
+    display: none;
+  }
+
+  & .pixel-only {
+    display: block;
+  }
+
+  /* LCD dot matrix instead of graph paper */
+  & .sketch-paper {
+    background-image: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--color-base-content) 10%, transparent) 1px,
+      transparent 1.5px
+    );
+    background-size: 5px 5px;
+  }
+
+  /* dithered checkerboard instead of pencil hatching, and square edges */
+  & .sketch-hatch {
+    background-image: repeating-conic-gradient(
+      color-mix(in srgb, var(--color-base-content) 16%, transparent) 0 25%,
+      transparent 0 50%
+    );
+    background-size: 4px 4px;
+  }
+
+  & .sketch-clip {
+    clip-path: none;
+  }
+
+  /* everything sits on the pixel grid: no hand-placed tilts */
+  & [class*='rotate-'] {
+    rotate: 0deg !important;
+  }
+
+  & .tape {
+    mix-blend-mode: normal;
+    background-color: var(--color-base-300);
+    box-shadow: none;
+  }
+
+  & .ink-rough {
+    filter: none;
+  }
+
+  /* Drawings become LCD pixels: thick square strokes, cut by a mask into 3px cells with 1px
+     gaps. (An SVG pixelate filter was tried first; Chrome silently drops some filtered
+     elements, a mask has no such problem.) */
+  /* no ink-in animation in game mode: pixels just appear (and Chrome doesn't always
+     repaint a masked drawing when that animation ends) */
+  & .draw-on :is(path, circle, rect, line, ellipse, polyline) {
+    animation: none;
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+  }
+
+  & .pixelable {
+    shape-rendering: crispEdges;
+    mask-image:
+      linear-gradient(to right, #000 3px, transparent 3px),
+      linear-gradient(to bottom, #000 3px, transparent 3px);
+    mask-size: 4px 4px;
+    mask-composite: intersect;
+
+    & :is(path, circle, rect, line, ellipse, polyline) {
+      stroke-width: 4px;
+      stroke-linecap: square;
+      stroke-linejoin: miter;
+    }
+  }
+
+  /* photos read as a Game Boy Camera shot */
+  & img {
+    filter: grayscale(1) sepia(1) hue-rotate(40deg) saturate(1.8) brightness(0.8) contrast(1.1);
+  }
+}
+
+/* Pixel border with notched corners: four offset shadows around a box inset by the border
+   width leave the corners empty, the classic 8-bit frame. Colour comes from currentColor. */
+.pixel-box {
+  position: absolute;
+  inset: 4px;
+  pointer-events: none;
+  box-shadow:
+    0 -4px 0 0 currentColor,
+    0 4px 0 0 currentColor,
+    -4px 0 0 0 currentColor,
+    4px 0 0 0 currentColor;
+}
+
+.pixel-box-thin {
+  inset: 2px;
+  box-shadow:
+    0 -2px 0 0 currentColor,
+    0 2px 0 0 currentColor,
+    -2px 0 0 0 currentColor,
+    2px 0 0 0 currentColor;
+}
+
+/* Game mode boot: the name drops from the top of the screen and settles, then the screen
+   fades into the site, like a handheld powering on. */
+@keyframes boot-drop {
+  0% {
+    transform: translateY(-45vh);
+  }
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes boot-fade {
+  0%,
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.boot-screen {
+  animation: boot-fade 1.8s steps(6, end) forwards;
+}
+
+.boot-logo {
+  animation: boot-drop 1.8s steps(12, end) forwards;
+}
+
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-hand: "Shantell Sans", "Inter", ui-sans-serif, sans-serif;
