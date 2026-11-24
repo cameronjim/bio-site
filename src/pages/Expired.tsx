@@ -16,7 +16,7 @@ function Expired() {
             <p className="mb-3 text-sm text-base-content/70">
               If you believe this is an error, please reach out directly:
             </p>
-            <a href="mailto:cameron@cameronjim.com" className="btn btn-primary btn-block">
+            <a href="mailto:cameroncjim@gmail.com" className="btn btn-primary btn-block">
               Send email
             </a>
           </div>

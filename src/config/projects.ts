@@ -47,21 +47,23 @@ export const PLAY_URL = 'https://gb.cameronjim.com'
 export const PROJECTS: Project[] = [
   {
     slug: 'race-car',
-    title: 'Autonomous 1/10 scale race car',
+    title: 'Autonomous racing car',
     note: 'my favourite project',
     summary:
-      "I'm turning a Traxxas Slash 4x4 RC truck into a self-driving car that runs ROS 2 on an NVIDIA Jetson Orin Nano. The driving software already handles a simulated copy of the car, and the physical build is happening now.",
+      "A 1/10 scale autonomous racing car I designed and built myself, running ROS 2 on an NVIDIA Jetson Orin Nano with LiDAR and a camera. I'm currently finalizing a plug-and-play machine learning system that adds learned perception, learned dynamics correction, and lap-by-lap optimization on top of a geometric baseline.",
     writeup: [
-      "This is the project I'm most proud of. I'm converting a Traxxas Slash 4x4 RC truck into a self-driving research car. I kept the stock chassis, drivetrain, suspension, and steering servo, and swapped in a sensored brushless motor with a programmable VESC motor controller. An NVIDIA Jetson Orin Nano runs everything, and a LiDAR is going on next.",
-      'Safety comes first on this one. There is a hardware kill switch (an RP2040 and an RC receiver on their own power rail) that can cut the motor even if the Jetson freezes, and nothing in the software is allowed to bypass it.',
-      'Before building anything physical, I spent a lot of time in simulation. I trained SAC and PPO agents from scratch in the F1TENTH Gym, with classical controllers like pure pursuit, gap following, and wall following as the baselines they had to beat. On the Spielberg track, a residual SAC policy running on top of pure pursuit lapped in 33.40 s, compared to 37.99 s for pure pursuit on its own.',
-      'Right now the motor is sensored and fully controllable from a terminal, and the software stack already drives a simulated copy of this exact car. Next up is getting it driving on a real track. [Anything to add here, like who is helping with the build?]',
+      "This is the project I'm most proud of. I started with a Traxxas Slash 4x4, took out almost everything, and designed and assembled the rest of the car myself. I upgraded the motor to a sensored brushless motor with a programmable VESC controller, moved to 3S LiPo batteries, and added an NVIDIA Jetson Orin Nano, an RPLIDAR C1 LiDAR, and a global-shutter camera for computer vision.",
+      'I also designed the power system and wired and soldered everything together. The Jetson, the motor, and the safety system each get their own power rail, and a hardware kill switch (an RP2040 safety mux with level shifters) can cut the motor from my RC remote even if the Jetson freezes. Nothing in the software is allowed to bypass it.',
+      'The software runs on ROS 2, split into 15 packages. I started with the classic control algorithms: gap following, wall following, and pure pursuit, all in C++, plus a safety node that brakes based on time to collision. Gap following gave the car its first working laps on the floor.',
+      "The best part is the system I'm finalizing now: a plug-and-play machine learning stack. It starts from a baseline geometric perception algorithm that turns each LiDAR scan into a local map of the track, then adds 3 learned components: learned perception, learned dynamics correction, and lap-by-lap optimization. Every part can be swapped against its classical version, so I can measure exactly what the learning adds. So far the car has done 9 mapless runs (about 170 m) on the geometric baseline with zero wall contact. The learned perception model cut centreline error from 0.136 m to 0.051 m on held-out runs, and the learned dynamics correction reduced yaw error to 0.40x of the physics model alone. I'm still validating both before they replace the baseline on the car.",
+      'The camera already counts laps on the real car (20 out of 20 in testing). I\'m also adding object detection for practical tasks, like a "spider-bot" patrol mode that alerts when someone raises their arms, with a medicine delivery mode for seniors planned next.',
+      'Before this car, I trained SAC and PPO agents from scratch in the F1TENTH simulator. A residual SAC policy running on top of pure pursuit lapped the Spielberg track in 33.40 s, compared to 37.99 s for pure pursuit on its own.',
     ],
-    tags: ['ROS 2', 'PyTorch', 'Jetson Orin Nano', 'C++', 'Python'],
+    tags: ['ROS 2', 'C++', 'Python', 'PyTorch', 'Jetson', 'LiDAR'],
     stack: [
-      'ROS 2, Python, C++, Docker',
-      'PyTorch, SAC, PPO, F1TENTH Gym',
-      'NVIDIA Jetson Orin Nano, VESC, RP2040 kill switch',
+      'ROS 2 Humble, C++, Python',
+      'PyTorch, YOLOv8, MPPI planner',
+      'Jetson Orin Nano, VESC, RPLIDAR C1, RP2040 safety mux',
     ],
     art: 'car',
     repo: 'https://github.com/cameronjim/fast-car',
@@ -74,7 +76,7 @@ export const PROJECTS: Project[] = [
     summary:
       "A third-person action game I'm making solo in Unreal Engine 5 and C++, in the style of Insomniac's Spider-Man games. You play as Kate Bishop, with a bow, a grapple arrow, and a lot of parkour.",
     writeup: [
-      "Hawkeye is a third-person action game I'm building solo in Unreal Engine 5 with C++. I've always wanted to learn how games like Insomniac's Spider-Man are made, so I'm making one in that style. You play as Kate Bishop, with a bow, a grapple arrow, and a dog in a sweater.",
+      "Hawkeye is a third-person action game I'm building solo in Unreal Engine 5 with C++. I've always wanted to learn how games like Insomniac's Spider-Man are made, so I'm making one in that style. I designed it, wrote the story, and built the gameplay. You play as Kate Bishop, with a bow, a grapple arrow, and a dog in a sweater.",
       "Kate doesn't have webs to swing on, so getting around is parkour and a grapple arrow. Both run on a custom movement component, which means every zip and vault is real movement with real velocity. You keep your speed going into a zip, and you land running.",
       'Combat is built around groups of thugs, like in Spider-Man. An attack token system decides who is allowed to swing, so two enemies never hit you from the same side at once, and there is always a parry or a dodge that gets you out of it.',
       'The city is NOT hand-built. A Python pipeline reads OpenStreetMap data for the blocks around Tompkins Square Park in New York and generates the buildings, ledges, fire escapes, and grapple points. As a result, every street-facing roof can be reached with the grapple from the street.',
@@ -92,13 +94,13 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'gameboy-emulator',
-    title: 'Game Boy emulator',
+    title: 'Game Boy Color emulator',
     note: 'plus four games I wrote for it',
     summary:
-      'A Game Boy emulator I wrote from scratch in C++, and four games for it written in C with gbdk-2020: Tetris, Flappy Bird, Crossy Road, and Mario. It runs on Windows, Mac, Linux, and in your browser.',
+      'A Game Boy Color emulator I wrote from scratch in C++, plus my own versions of Super Mario Bros, Tetris, Flappy Bird, and Crossy Road written in C. It runs on Windows, Mac, Linux, and in your browser.',
     writeup: [
-      'I wrote a Game Boy (DMG) emulator from scratch in C++, including the CPU, graphics, audio, and support for MBC1, MBC3, and MBC5 cartridges. It runs on Windows, Mac, and Linux, and it can play Game Boy Color games too. I check it against test ROMs from the Mooneye and blargg test suites.',
-      'To have something to play on it, I also wrote four games from scratch in C with gbdk-2020. Flappy Bird and Crossy Road are regular Game Boy games, while Tetris and Mario are Game Boy Color builds. Tetris gives each piece its own colour and saves your best score, and Mario is a rebuild of World 1 with four levels, powerups, and a boss fight.',
+      'I wrote a Game Boy Color emulator from scratch in C++, including the CPU, memory, graphics, timers, audio, and support for MBC1, MBC3, and MBC5 cartridges. It runs on Windows, Mac, and Linux, and it plays both original Game Boy and Game Boy Color games. I check it against test ROMs from the Mooneye and blargg test suites.',
+      'To have something to play on it, I also reverse engineered four games and rewrote them from scratch in C with gbdk-2020: Super Mario Bros, Tetris, Flappy Bird, and Crossy Road. Tetris gives each piece its own colour and saves your best score, and Super Mario Bros is a rebuild of World 1 with four levels, powerups, and a boss fight.',
       "The same emulator runs in the browser too. Every push to main builds it with Emscripten and publishes it, which is what you're playing at gb.cameronjim.com. Saves are kept in your browser, so they survive a reload.",
     ],
     tags: ['C++', 'C', 'SDL2', 'gbdk-2020', 'Emscripten'],
@@ -111,18 +113,18 @@ export const PROJECTS: Project[] = [
       { src: '/projects/gbemu/tetris.png', caption: 'Tetris' },
       { src: '/projects/gbemu/crossy-road.png', caption: 'Crossy Road' },
       { src: '/projects/gbemu/flappy-bird.png', caption: 'Flappy Bird' },
-      { src: '/projects/gbemu/mario.png', caption: 'Mario' },
+      { src: '/projects/gbemu/mario.png', caption: 'Super Mario Bros' },
     ],
   },
   {
     slug: 'nba-iq',
     title: 'NBA IQ',
-    note: '29 seasons of data',
+    note: 'built for my fantasy leagues',
     summary:
-      'Fantasy basketball analytics: a scraping pipeline feeds a 3-model LightGBM system, and an AI assistant reads your roster to suggest trades and waiver moves.',
+      'A machine learning NBA analytics platform I built for my fantasy leagues. Its player stat predictions are 16% more accurate than a season-average baseline.',
     writeup: [
-      'A full-stack NBA fantasy analytics platform built for reliable projections. A routine scraping pipeline feeds box scores, odds, stats and injuries into Postgres, which runs through a 3-model LightGBM system.',
-      'The models are trained on 29 seasons of individual player performance, weight-tuned for accuracy and built to outperform generic LLMs. An AI-powered assistant reads a user\'s roster to come up with the best trades and waiver moves.',
+      'I built NBA IQ for my own fantasy NBA leagues. It is a full-stack analytics platform with machine learning at the centre: a scraping pipeline feeds box scores, odds, stats, and injuries into PostgreSQL, and the models run on top of that.',
+      "Player production is split into 3 separate predictors, trained on over 170,000 player-games. As a result, its player stat predictions are 16% more accurate than a season-average baseline. There is also an AI assistant that reads your roster and suggests trades and waiver moves.",
     ],
     tags: ['LightGBM', 'React', 'Postgres', 'AWS'],
     stack: [

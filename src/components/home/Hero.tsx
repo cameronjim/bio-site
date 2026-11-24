@@ -78,15 +78,16 @@ function Hero() {
           </span>
         </h1>
         <p className="mt-6 font-hand text-xl text-base-content/80">
-          computer engineering at UBC · varsity tennis captain
+          UBC computer engineering · men&apos;s tennis captain
         </p>
         <p className="mt-5 max-w-xl text-lg leading-relaxed text-base-content/75">
-          I&apos;m a fourth-year Computer Engineering student at UBC and the captain of the
-          men&apos;s varsity tennis team. Right now I&apos;m on co-op as a QA Software Engineer at
-          the BC Maritime Employers Association. Outside of school and work I build side projects
-          to learn new things, and I am very passionate about both game development and robotics.
-          At the moment that means turning an RC truck into a self-driving car and making a 3D
-          action game in Unreal Engine.
+          I&apos;m a fourth-year Computer Engineering student and the captain of the UBC
+          Men&apos;s Tennis Team. Right now I&apos;m on co-op as a QA Software Engineer at the BC
+          Maritime Employers Association, and I&apos;m also the technical cofounder of Ursa Care
+          Ride, a transport platform for foster children that is close to launching on the App
+          Store. Outside of school and work I build side projects to learn new things, and I am
+          very passionate about both game development and robotics. Currently I am in the midst of
+          expanding on my self-driving car and developing a 3D action game in Unreal Engine.
         </p>
         <div className="mt-8 flex flex-wrap items-center gap-4">
           <SketchButton href="#contact" primary>

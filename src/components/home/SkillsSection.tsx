@@ -1,26 +1,12 @@
 import SectionHeading from '../sketch/SectionHeading'
 import Tape from '../sketch/Tape'
 
+// Trimmed to what I'm most comfortable with (matches the résumé).
 const SKILLS: Record<string, string[]> = {
-  Languages: [
-    'C++',
-    'C',
-    'C#',
-    'Java',
-    'Python',
-    'TypeScript',
-    'SQL',
-    'Rust',
-    'ARM / RISC-V asm',
-    'SystemVerilog',
-  ],
-  Frontend: ['React', 'Redux Toolkit', 'Vite', 'HTML', 'CSS'],
-  'Backend & data': ['Node.js', 'Express', 'REST APIs', 'PostgreSQL', 'DynamoDB'],
-  'Robotics & ML': ['ROS 2', 'PyTorch', 'LightGBM', 'OpenCV', 'LiDAR'],
-  'Testing & QA': ['Playwright', 'NUnit', 'Vitest', 'k6', 'BrowserStack', 'Postman'],
-  'Cloud & DevOps': ['AWS Lambda', 'API Gateway', 'S3', 'CloudFront', 'GitHub Actions', 'Docker'],
-  'Embedded & hardware': ['FPGA', 'RISC-V', 'Arduino', 'ModelSim', 'Quartus', 'GDB'],
-  'Tools & platforms': ['Git', 'Linux', 'NVIDIA Jetson', 'Figma', 'LaTeX'],
+  Languages: ['Java', 'C#', 'C++', 'C', 'Python', 'SystemVerilog', 'JavaScript', 'SQL'],
+  'Robotics & ML': ['ROS 2', 'PyTorch'],
+  'Cloud & data': ['AWS', 'PostgreSQL'],
+  'Tools & engines': ['Unreal Engine', 'k6', 'Linux'],
 }
 
 // Sticky-note tones and tilts, cycled so neighbouring notes never match.

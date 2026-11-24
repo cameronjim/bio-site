@@ -5,6 +5,7 @@ interface Job {
   location: string
   role: string
   period: string
+  stack: string[]
   highlights: string[]
 }
 
@@ -12,12 +13,13 @@ const JOBS: Job[] = [
   {
     company: 'Ursa Care Ride',
     location: 'Vancouver, BC',
-    role: 'Technical Co-founder',
+    role: 'Technical Cofounder',
     period: 'now',
+    stack: ['React', 'React Native', 'AWS'],
     highlights: [
-      'Building a real-time ride dispatch platform for foster child transport, built around child safety',
-      'React + TypeScript front end, Node.js + Express backend, PostgreSQL database',
-      'Designed a Hungarian-algorithm (Kuhn-Munkres) solver to optimize driver-to-request matching',
+      'Sole engineer on a full-stack transport platform for foster children, with a live web beta and a mobile app in prototype',
+      'Built with security and privacy in mind, since it holds sensitive data and is being piloted with government workers',
+      'Close to launching on the App Store and getting a government pilot license',
     ],
   },
   {
@@ -25,10 +27,11 @@ const JOBS: Job[] = [
     location: 'Vancouver, BC',
     role: 'QA Software Engineer (Co-op)',
     period: 'May – Dec 2026',
+    stack: ['k6', 'Playwright', 'C#', 'JavaScript'],
     highlights: [
-      'Built k6 load and performance suites to catch latency and throughput regressions',
-      'Developed end-to-end Playwright automation that validates key workflows every release',
-      'Built API test coverage in C# with NUnit to validate data integrity',
+      'Built k6 performance testing suites to catch latency and throughput regressions before they reach production',
+      'Developed E2E Playwright automation covering critical B2B workflows and regression scenarios',
+      'Built REST API test suites in C# with NUnit for validating endpoint logic',
     ],
   },
   {
@@ -36,20 +39,21 @@ const JOBS: Job[] = [
     location: 'Vancouver, BC',
     role: 'Software Engineer (Co-op)',
     period: 'May – Sept 2025',
+    stack: ['React', 'TypeScript', 'Redux Toolkit'],
     highlights: [
-      'Developed complex features for an enterprise SaaS app in React and TypeScript',
-      'Accelerated development with custom MCP servers for Figma, Playwright and Vite',
-      'Created a CI/CD pipeline with automatic PR builds, test runs and production deploys',
+      'Shipped features for an enterprise B2B SaaS application in React and TypeScript, wiring backend APIs to the Google Maps API for geospatial visualizations',
+      'Migrated the front-end build to CI/CD with automatic PR builds, preview deploys, and coverage checks',
     ],
   },
   {
     company: 'Turing AI',
     location: 'Remote',
-    role: 'ML Training Data Analyst',
+    role: 'STEM Annotator Internship (Google)',
     period: 'Dec 2024 – Jan 2025',
+    stack: [],
     highlights: [
-      'Led the CS and Physics teams writing AP-level problems as training data for Gemini 2.5',
-      'Benchmarked AI responses against standards and wrote analytic reports for Google',
+      'Led CS and Physics teams writing and verifying AP-level problems for training and validation datasets',
+      'Benchmarked AI responses across models with rubric-based comparisons, reporting failure modes to guide iteration',
     ],
   },
   {
@@ -57,9 +61,9 @@ const JOBS: Job[] = [
     location: 'Richmond, BC',
     role: 'Tennis Instructor (Part-time)',
     period: 'Nov 2020 – Jun 2023',
+    stack: [],
     highlights: [
-      'Coached beginner and intermediate players aged 4–13 on technique, fundamentals and strategy',
-      'Built lesson plans around teamwork, confidence, sportsmanship and an inclusive environment',
+      'Coached beginner and intermediate students aged 4–13 on technique, fundamentals, and match play',
     ],
   },
 ]
@@ -113,6 +117,9 @@ function ExperienceSection({ level = 2 }: ExperienceSectionProps) {
               <p className="mt-1 font-hand text-base-content/65">
                 {job.company} · {job.location}
               </p>
+              {job.stack.length > 0 && (
+                <p className="mt-1 font-hand text-sm text-primary/80">{job.stack.join(' · ')}</p>
+              )}
               <ul className="mt-3 space-y-1.5 leading-relaxed text-base-content/75">
                 {job.highlights.map((item) => (
                   <li key={item} className="relative pl-5">

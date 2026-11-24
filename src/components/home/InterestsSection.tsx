@@ -13,10 +13,11 @@ function InterestsSection() {
           <TvDoodle className="relative mb-4 w-20 text-base-content" />
           <h3 className="relative font-hand text-2xl font-extrabold">What I watch</h3>
           <p className="relative mt-3 leading-relaxed text-base-content/75">
-            Action, comedy, anime and K-dramas. Silicon Valley is my all-time favourite; I first
-            watched it in grade 10, it&apos;s a big reason I got into software engineering, and
-            I&apos;ve rewatched it more than 15 times. The Spider-Man films hit home too, for
-            someone who has always lived as two people: a student and an athlete.
+            I watch movies and shows of all varieties: action, comedy, drama, and anime. My
+            favourite show of all time is probably Silicon Valley, and it&apos;s a big reason of why
+            I entered software/computer engineering. As for movies, I have been a huge Marvel fan
+            my whole life, with Spider-Man being my favourite character. The newest one (Brand New
+            Day) is very solid!
           </p>
         </article>
         <article className="relative rotate-[0.6deg] p-7">
@@ -24,10 +25,11 @@ function InterestsSection() {
           <PanDoodle className="relative mb-4 w-24 text-base-content" />
           <h3 className="relative font-hand text-2xl font-extrabold">What I cook</h3>
           <p className="relative mt-3 leading-relaxed text-base-content/75">
-            Half Chinese, half Korean, so I gravitate toward Asian cooking. I cook for comfort
-            more than survival, and it calms me down: braised meats, or some version of (air)
-            fried chicken. I love baking too, but I try not to, because I would eat everything I
-            make.
+            I&apos;m half Chinese and half Korean, so I gravitate towards Asian cooking. Lots of
+            rice dishes, with meats that follow Chinese and Japanese cuisine mostly. But I still
+            love cooking other cuisines as well. Unlike many of my peers, I really enjoy cooking and
+            use it as a way to alleviate stress, rather than cause it. My favourite dishes to make
+            are Hong Shao Rou (Chinese braised pork belly) and Vodka Parm Subs.
           </p>
         </article>
       </div>
