@@ -172,35 +172,35 @@
 }
 
 /* ------------------------------------------------------------------------------------------
-   "Game Boy" theme — game mode. The original handheld's four greens, a dot-matrix screen
-   instead of paper, pixel fonts, pixel borders and pixelated drawings. Components render
+   "Arcade" theme — game mode. An 80s/90s cabinet: black screen, white pixel type, neon blue
+   outlines, red for the things you press, CRT scanlines over everything. Components render
    both looks (.sketch-only / .pixel-only) and these rules pick one, so switching is CSS only.
    ------------------------------------------------------------------------------------------ */
 @plugin "daisyui/theme" {
-  name: "gameboy";
+  name: "arcade";
   default: false;
   prefersdark: false;
-  color-scheme: light;
-  --color-base-100: #b5c75a;
-  --color-base-200: #9bbc0f;
-  --color-base-300: #8bac0f;
-  --color-base-content: #0f380f;
-  --color-primary: #306230;
-  --color-primary-content: #c4d88a;
-  --color-secondary: #8bac0f;
-  --color-secondary-content: #0f380f;
-  --color-accent: #306230;
-  --color-accent-content: #c4d88a;
-  --color-neutral: #0f380f;
-  --color-neutral-content: #9bbc0f;
-  --color-info: #306230;
-  --color-info-content: #c4d88a;
-  --color-success: #306230;
-  --color-success-content: #c4d88a;
-  --color-warning: #306230;
-  --color-warning-content: #c4d88a;
-  --color-error: #0f380f;
-  --color-error-content: #9bbc0f;
+  color-scheme: dark;
+  --color-base-100: #0e1020;
+  --color-base-200: #05060c;
+  --color-base-300: #1c2140;
+  --color-base-content: #f2f3f8;
+  --color-primary: #ff3355;
+  --color-primary-content: #ffffff;
+  --color-secondary: #3d8bff;
+  --color-secondary-content: #ffffff;
+  --color-accent: #3d8bff;
+  --color-accent-content: #ffffff;
+  --color-neutral: #000000;
+  --color-neutral-content: #f2f3f8;
+  --color-info: #3d8bff;
+  --color-info-content: #ffffff;
+  --color-success: #3d8bff;
+  --color-success-content: #ffffff;
+  --color-warning: #ff3355;
+  --color-warning-content: #ffffff;
+  --color-error: #ff3355;
+  --color-error-content: #ffffff;
   --radius-box: 0;
   --radius-field: 0;
   --radius-selector: 0;
@@ -210,9 +210,11 @@
   display: none;
 }
 
-[data-theme='gameboy'] {
+[data-theme='arcade'] {
   --font-hand: "Pixelify Sans", ui-sans-serif, sans-serif;
   --font-scrawl: "VT323", ui-monospace, monospace;
+  --glow-blue: color-mix(in srgb, var(--color-secondary) 70%, transparent);
+  --glow-red: color-mix(in srgb, var(--color-primary) 70%, transparent);
 
   & .sketch-only {
     display: none;
@@ -222,20 +224,45 @@
     display: block;
   }
 
-  /* LCD dot matrix instead of graph paper */
+  /* a dark screen with a faint blue bloom in the middle, like a cabinet monitor */
+  &.sketch-paper,
   & .sketch-paper {
+    background-color: var(--color-base-200);
     background-image: radial-gradient(
-      circle,
-      color-mix(in srgb, var(--color-base-content) 10%, transparent) 1px,
-      transparent 1.5px
+      ellipse at 50% 30%,
+      color-mix(in srgb, var(--color-secondary) 14%, transparent),
+      transparent 70%
     );
-    background-size: 5px 5px;
+    background-attachment: fixed;
   }
 
-  /* dithered checkerboard instead of pencil hatching, and square edges */
+  /* CRT scanlines over the whole screen, header and game included */
+  &.sketch-paper::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0 2px,
+      color-mix(in srgb, var(--color-neutral) 28%, transparent) 2px 3px
+    );
+  }
+
+  /* pixel headings glow blue, handwritten notes become red terminal text */
+  & :is(h1, h2, h3).font-hand,
+  & .font-hand.font-extrabold {
+    text-shadow: 0 0 10px var(--glow-blue);
+  }
+
+  & .font-scrawl.text-primary {
+    text-shadow: 0 0 8px var(--glow-red);
+  }
+
   & .sketch-hatch {
     background-image: repeating-conic-gradient(
-      color-mix(in srgb, var(--color-base-content) 16%, transparent) 0 25%,
+      color-mix(in srgb, var(--color-base-content) 7%, transparent) 0 25%,
       transparent 0 50%
     );
     background-size: 4px 4px;
@@ -251,18 +278,29 @@
   }
 
   & .tape {
-    mix-blend-mode: normal;
-    background-color: var(--color-base-300);
-    box-shadow: none;
+    display: none;
   }
 
   & .ink-rough {
     filter: none;
   }
 
-  /* Drawings become LCD pixels: thick square strokes, cut by a mask into 3px cells with 1px
-     gaps. (An SVG pixelate filter was tried first; Chrome silently drops some filtered
-     elements, a mask has no such problem.) */
+  /* neon outlines on every frame */
+  & .pixel-box {
+    color: var(--color-secondary);
+    filter: drop-shadow(0 0 5px var(--glow-blue));
+  }
+
+  /* the current page gets an arcade menu cursor instead of an underline */
+  & header a[aria-current='page'] {
+    text-decoration: none;
+
+    &::before {
+      content: '▸ ';
+      color: var(--color-primary);
+    }
+  }
+
   /* no ink-in animation in game mode: pixels just appear (and Chrome doesn't always
      repaint a masked drawing when that animation ends) */
   & .draw-on :is(path, circle, rect, line, ellipse, polyline) {
@@ -271,8 +309,12 @@
     stroke-dashoffset: 0;
   }
 
+  /* Drawings become glowing pixel art: thick square strokes, cut by a mask into 3px cells
+     with 1px gaps. (An SVG pixelate filter was tried first; Chrome silently drops some
+     filtered elements, a mask has no such problem.) */
   & .pixelable {
     shape-rendering: crispEdges;
+    filter: drop-shadow(0 0 4px var(--glow-blue));
     mask-image:
       linear-gradient(to right, #000 3px, transparent 3px),
       linear-gradient(to bottom, #000 3px, transparent 3px);
@@ -284,11 +326,6 @@
       stroke-linecap: square;
       stroke-linejoin: miter;
     }
-  }
-
-  /* photos read as a Game Boy Camera shot */
-  & img {
-    filter: grayscale(1) sepia(1) hue-rotate(40deg) saturate(1.8) brightness(0.8) contrast(1.1);
   }
 }
 
@@ -314,21 +351,29 @@
     2px 0 0 0 currentColor;
 }
 
-/* Game mode boot: the name drops from the top of the screen and settles, then the screen
-   fades into the site, like a handheld powering on. */
-@keyframes boot-drop {
+/* Game mode boot: an attract screen. The name zooms in, "insert coin" blinks, then the
+   screen cuts to the site. Stepped timing keeps it feeling like old hardware. */
+@keyframes boot-zoom {
   0% {
-    transform: translateY(-45vh);
+    transform: scale(3);
+    opacity: 0;
   }
-  60%,
+  40%,
   100% {
-    transform: translateY(0);
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes boot-blink {
+  50% {
+    opacity: 0;
   }
 }
 
 @keyframes boot-fade {
   0%,
-  75% {
+  80% {
     opacity: 1;
   }
   100% {
@@ -337,11 +382,15 @@
 }
 
 .boot-screen {
-  animation: boot-fade 1.8s steps(6, end) forwards;
+  animation: boot-fade 1.8s steps(4, end) forwards;
 }
 
 .boot-logo {
-  animation: boot-drop 1.8s steps(12, end) forwards;
+  animation: boot-zoom 1.8s steps(8, end) forwards;
+}
+
+.boot-blink {
+  animation: boot-blink 0.4s steps(1, end) infinite;
 }
 
 @theme {

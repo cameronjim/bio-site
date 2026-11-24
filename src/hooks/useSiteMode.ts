@@ -1,8 +1,8 @@
 import { useState } from 'react'
 
-// 'sketch' is the hand-drawn default; 'gameboy' is game mode. Both are daisyUI themes
+// 'sketch' is the hand-drawn default; 'arcade' is game mode. Both are daisyUI themes
 // defined in index.css and applied by SiteLayout via data-theme.
-export type SiteMode = 'sketch' | 'gameboy'
+export type SiteMode = 'sketch' | 'arcade'
 
 const STORAGE_KEY = 'site-mode'
 
@@ -10,7 +10,7 @@ const STORAGE_KEY = 'site-mode'
 // guarded and the site always falls back to the sketch look.
 function readMode(): SiteMode {
   try {
-    return localStorage.getItem(STORAGE_KEY) === 'gameboy' ? 'gameboy' : 'sketch'
+    return localStorage.getItem(STORAGE_KEY) === 'arcade' ? 'arcade' : 'sketch'
   } catch {
     return 'sketch'
   }

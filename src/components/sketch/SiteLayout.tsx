@@ -104,16 +104,19 @@ function ModeSwitch({ mode, onToggle }: ModeSwitchProps) {
   )
 }
 
-// Shown for a moment when game mode turns on: the name drops down the screen and settles,
-// then the screen fades into the site, like a handheld powering on.
+// Shown for a moment when game mode turns on: an arcade attract screen. The name zooms in,
+// "insert coin" blinks, then it cuts to the site.
 function BootScreen() {
   return (
     <div
-      className="boot-screen fixed inset-0 z-[100] flex items-center justify-center bg-base-200"
+      className="boot-screen fixed inset-0 z-[100] flex flex-col items-center justify-center gap-8 bg-base-200"
       aria-hidden="true"
     >
-      <p className="boot-logo font-hand text-4xl font-bold tracking-wide text-base-content sm:text-6xl">
-        cameron jim
+      <p className="boot-logo font-hand text-5xl font-bold tracking-wide text-base-content uppercase sm:text-7xl">
+        Cameron Jim
+      </p>
+      <p className="boot-blink font-scrawl text-3xl tracking-widest text-primary uppercase">
+        insert coin
       </p>
     </div>
   )
@@ -143,9 +146,9 @@ function SiteLayout({ title, children }: SiteLayoutProps) {
   }, [booting])
 
   function toggleMode() {
-    const next = mode === 'sketch' ? 'gameboy' : 'sketch'
+    const next = mode === 'sketch' ? 'arcade' : 'sketch'
     setMode(next)
-    if (next === 'gameboy' && !prefersReducedMotion()) setBooting(true)
+    if (next === 'arcade' && !prefersReducedMotion()) setBooting(true)
   }
 
   useEffect(() => {
