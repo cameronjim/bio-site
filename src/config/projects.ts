@@ -126,6 +126,8 @@ export const PROJECTS: Project[] = [
     stack: ['C++, CMake, SDL2', 'C and gbdk-2020 for the games', 'Emscripten for the browser build'],
     art: 'gameboy',
     thumbnail: marioTitle,
+    video: '/media/gbemu-demo.mp4',
+    poster: '/media/gbemu-demo-poster.jpg',
     repo: 'https://github.com/cameronjim/gbemu',
     live: PLAY_URL,
     liveLabel: 'play it',
