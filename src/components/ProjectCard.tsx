@@ -116,14 +116,26 @@ function ProjectCard({ project, index }: ProjectCardProps) {
       <div className="relative flex aspect-video items-center justify-center">
         <span className="sketch-hatch sketch-clip absolute inset-0 bg-base-200" />
         <SketchBorder variant={1} className="text-base-content/50" />
-        {project.thumbnail ? (
+        {project.thumbnail && project.thumbnailStyle === 'pixel' && (
+          <figure className="absolute top-[9%] bottom-[9%] left-1/2 -translate-x-1/2 -rotate-2 bg-base-100 p-1.5 shadow-md transition-transform duration-300 group-hover:rotate-0">
+            <Tape className="-top-3 left-1/2 w-14 -translate-x-1/2 rotate-3" />
+            <img
+              src={project.thumbnail}
+              alt={`${project.title} screenshot`}
+              loading="lazy"
+              className="h-full w-auto [image-rendering:pixelated]"
+            />
+          </figure>
+        )}
+        {project.thumbnail && project.thumbnailStyle !== 'pixel' && (
           <img
             src={project.thumbnail}
             alt={`${project.title} screenshot`}
             loading="lazy"
             className="absolute inset-1.5 h-[calc(100%-0.75rem)] w-[calc(100%-0.75rem)] object-cover"
           />
-        ) : (
+        )}
+        {!project.thumbnail && (
           <ProjectArt
             art={project.art}
             className="relative h-24 w-auto max-w-[70%] transition-transform duration-300 group-hover:-rotate-3 sm:h-28"
