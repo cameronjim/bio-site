@@ -5,6 +5,8 @@
 
 import hawkeyePortrait from '../assets/projects/hawkeye-portrait.jpg'
 import marioTitle from '../assets/projects/mario-title.png'
+import nbaIqStats from '../assets/projects/nba-iq-stats.jpg'
+import thisSiteHome from '../assets/projects/this-site-home.jpg'
 
 export type ProjectArt =
   | 'car'
@@ -157,6 +159,7 @@ export const PROJECTS: Project[] = [
       'Vitest, Playwright, pytest',
     ],
     art: 'basketball',
+    thumbnail: nbaIqStats,
     repo: 'https://github.com/cameronjim/nba-iq',
     live: 'https://nbaiq.cameronjim.com',
     liveLabel: 'open the app',
@@ -178,6 +181,7 @@ export const PROJECTS: Project[] = [
       'GitHub Actions, OIDC',
     ],
     art: 'browser',
+    thumbnail: thisSiteHome,
     repo: 'https://github.com/cameronjim/bio-site',
   },
 ]
