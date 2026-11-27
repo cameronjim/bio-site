@@ -113,20 +113,18 @@ function ProjectCard({ project, index }: ProjectCardProps) {
       className={`group relative flex flex-col p-6 transition-transform duration-300 hover:rotate-0 ${tilt}`}
     >
       <SketchBorder filled variant={index % 2 === 0 ? 0 : 1} className="drop-shadow-sm" />
-      {/* 16:9, the shape of a screenshot, so thumbnails show whole and every card matches */}
-      <div className="relative flex aspect-video items-center justify-center">
-        <span className="sketch-hatch sketch-clip absolute inset-0 bg-base-200" />
-        <SketchBorder variant={1} className="text-base-content/50" />
-        {project.thumbnail && (
-          <ProjectThumbnail src={project.thumbnail} alt={`${project.title} screenshot`} />
-        )}
-        {!project.thumbnail && (
+      {project.thumbnail ? (
+        <ProjectThumbnail src={project.thumbnail} alt={`${project.title} screenshot`} />
+      ) : (
+        <div className="relative flex aspect-video items-center justify-center">
+          <span className="sketch-hatch sketch-clip absolute inset-0 bg-base-200" />
+          <SketchBorder variant={1} className="text-base-content/50" />
           <ProjectArt
             art={project.art}
             className="relative h-24 w-auto max-w-[70%] transition-transform duration-300 group-hover:-rotate-3 sm:h-28"
           />
-        )}
-      </div>
+        </div>
+      )}
       <p className="relative mt-5 font-scrawl text-xl text-primary">{project.note}</p>
       <h3 className="relative font-hand text-2xl leading-tight font-extrabold">
         {project.draft ? (
