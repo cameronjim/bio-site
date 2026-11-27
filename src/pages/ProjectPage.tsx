@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { PROJECTS, findProject } from '../config/projects'
 import SiteLayout from '../components/sketch/SiteLayout'
@@ -8,6 +9,47 @@ import Tape from '../components/sketch/Tape'
 import ProjectArt from '../components/ProjectArt'
 
 const LINK_CLASS = 'decoration-wavy underline-offset-4 hover:underline'
+
+// Widescreen until the video reports its real shape.
+const DEFAULT_ASPECT = 16 / 9
+
+interface DemoVideoProps {
+  src: string
+  poster?: string
+}
+
+// The demo player takes each video's own shape (a 16:9 game capture stays wide, a Game Boy
+// recording comes out nearly square) instead of letterboxing everything into 16:9. Height
+// is capped so a tall video still fits on screen.
+function DemoVideo({ src, poster }: DemoVideoProps) {
+  const [aspect, setAspect] = useState(DEFAULT_ASPECT)
+
+  function handleMetadata(e: React.SyntheticEvent<HTMLVideoElement>) {
+    const { videoWidth, videoHeight } = e.currentTarget
+    if (videoWidth && videoHeight) setAspect(videoWidth / videoHeight)
+  }
+
+  return (
+    <div
+      className="relative mx-auto max-w-full bg-base-100 p-3"
+      style={{ width: `min(100%, calc(75vh * ${aspect} + 1.5rem))` }}
+    >
+      <Tape className="-top-3 -left-3 -rotate-12" />
+      <Tape className="-top-3 -right-3 rotate-12" />
+      <SketchBorder />
+      <video
+        className="relative block w-full bg-neutral"
+        style={{ aspectRatio: aspect }}
+        src={src}
+        poster={poster}
+        controls
+        playsInline
+        preload="metadata"
+        onLoadedMetadata={handleMetadata}
+      />
+    </div>
+  )
+}
 
 // One page per project at /projects/:slug — the link to send someone for a
 // demo: video up top, then the write-up, stack and links.
@@ -53,20 +95,10 @@ function ProjectPage() {
         </header>
 
         <div className="relative mt-10">
-          <Tape className="-top-3 -left-3 -rotate-12" />
-          <Tape className="-top-3 -right-3 rotate-12" />
+          {!project.video && <Tape className="-top-3 -left-3 -rotate-12" />}
+          {!project.video && <Tape className="-top-3 -right-3 rotate-12" />}
           {project.video ? (
-            <div className="relative bg-base-100 p-3">
-              <SketchBorder />
-              <video
-                className="relative aspect-video w-full bg-neutral"
-                src={project.video}
-                poster={project.poster}
-                controls
-                playsInline
-                preload="metadata"
-              />
-            </div>
+            <DemoVideo src={project.video} poster={project.poster} />
           ) : (
             <div className="relative flex aspect-video flex-col items-center justify-center gap-4">
               <span className="sketch-hatch sketch-clip absolute inset-0 bg-base-100" />

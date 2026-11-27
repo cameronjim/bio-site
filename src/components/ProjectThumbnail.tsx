@@ -47,15 +47,22 @@ function ProjectThumbnail({ src, alt }: ProjectThumbnailProps) {
   }
 
   // Framed (also the look while the image is still loading, so nothing jumps): the whole
-  // shot on a paper mount, tilted a little, straightening on hover.
+  // shot at full panel height, with a blurred, zoomed copy of itself filling the rest of
+  // the box, so the panel is filled edge to edge without cropping anything.
   return (
-    <div className="absolute inset-[9%] flex items-center justify-center">
+    <div className="absolute inset-1.5 overflow-hidden">
+      <img
+        src={src}
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 h-full w-full scale-125 object-cover opacity-70 blur-lg"
+      />
       <img
         src={src}
         alt={alt}
         loading="lazy"
         onLoad={handleLoad}
-        className={`max-h-full max-w-full -rotate-2 bg-base-100 object-contain p-1.5 shadow-md transition-transform duration-300 group-hover:rotate-0 ${sharp}`}
+        className={`relative h-full w-full object-contain drop-shadow-lg ${sharp}`}
       />
     </div>
   )
