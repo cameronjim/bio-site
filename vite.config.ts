@@ -13,6 +13,11 @@ export default defineConfig({
   // Requests stay same-origin to the dev server, which forwards them server-side.
   server: {
     proxy: {
+      // Demo videos live in S3 under /media (not in the repo); in dev, fetch them from staging.
+      '/media': {
+        target: 'https://preview.cameronjim.com',
+        changeOrigin: true,
+      },
       '/api': {
         target: 'https://api.cameronjim.com',
         changeOrigin: true,

@@ -101,6 +101,8 @@ export const PROJECTS: Project[] = [
     ],
     art: 'eye',
     repo: 'https://github.com/cameronjim/hawkeye',
+    video: '/media/hawkeye-demo.mp4',
+    poster: '/media/hawkeye-demo-poster.jpg',
   },
   {
     slug: 'gameboy-emulator',
