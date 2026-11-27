@@ -36,11 +36,9 @@ export interface Project {
   video?: string
   poster?: string
   screenshots?: Screenshot[]
-  // A picture for the project card, shown instead of the doodle. 'cover' fills the 16:9
-  // panel (for 16:9 screenshots); 'pixel' shows it whole as a taped-on, pixel-sharp shot
-  // (for Game Boy screens, which are nearly square).
+  // A screenshot for the project card, shown instead of the doodle. Any shape works:
+  // ProjectThumbnail fills the panel with widescreen shots and frames the rest whole.
   thumbnail?: string
-  thumbnailStyle?: 'cover' | 'pixel'
   // Shown wide at the top of the projects grid.
   featured?: boolean
   // Write-up and demo still to come.
@@ -128,7 +126,6 @@ export const PROJECTS: Project[] = [
     stack: ['C++, CMake, SDL2', 'C and gbdk-2020 for the games', 'Emscripten for the browser build'],
     art: 'gameboy',
     thumbnail: marioTitle,
-    thumbnailStyle: 'pixel',
     repo: 'https://github.com/cameronjim/gbemu',
     live: PLAY_URL,
     liveLabel: 'play it',
