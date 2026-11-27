@@ -3,6 +3,8 @@
 // (see components/ProjectArt). Demo videos go in S3 behind CloudFront; set
 // `video` (and optionally `poster`) to their URLs once uploaded.
 
+import hawkeyePortrait from '../assets/projects/hawkeye-portrait.jpg'
+
 export type ProjectArt =
   | 'car'
   | 'eye'
@@ -33,6 +35,8 @@ export interface Project {
   video?: string
   poster?: string
   screenshots?: Screenshot[]
+  // A picture for the project card, shown instead of the doodle.
+  thumbnail?: string
   // Shown wide at the top of the projects grid.
   featured?: boolean
   // Write-up and demo still to come.
@@ -101,6 +105,7 @@ export const PROJECTS: Project[] = [
     ],
     art: 'eye',
     repo: 'https://github.com/cameronjim/hawkeye',
+    thumbnail: hawkeyePortrait,
     video: '/media/hawkeye-demo.mp4',
     poster: '/media/hawkeye-demo-poster.jpg',
   },

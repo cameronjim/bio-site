@@ -115,10 +115,19 @@ function ProjectCard({ project, index }: ProjectCardProps) {
       <div className="relative flex h-40 items-center justify-center">
         <span className="sketch-hatch sketch-clip absolute inset-0 bg-base-200" />
         <SketchBorder variant={1} className="text-base-content/50" />
-        <ProjectArt
-          art={project.art}
-          className="relative h-28 w-auto max-w-[70%] transition-transform duration-300 group-hover:-rotate-3"
-        />
+        {project.thumbnail ? (
+          <img
+            src={project.thumbnail}
+            alt={`${project.title} screenshot`}
+            loading="lazy"
+            className="sketch-clip absolute inset-1.5 h-[calc(100%-0.75rem)] w-[calc(100%-0.75rem)] object-cover object-[50%_60%]"
+          />
+        ) : (
+          <ProjectArt
+            art={project.art}
+            className="relative h-28 w-auto max-w-[70%] transition-transform duration-300 group-hover:-rotate-3"
+          />
+        )}
       </div>
       <p className="relative mt-5 font-scrawl text-xl text-primary">{project.note}</p>
       <h3 className="relative font-hand text-2xl leading-tight font-extrabold">
